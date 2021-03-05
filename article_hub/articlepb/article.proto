@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package articlepb;
+
+message Article {
+  int32 id = 1;
+  string title = 2;
+  string content = 3;
+  string created = 4;
+  string expires = 5;
+}
+
+message getArticlesRequest { }
+
+message getArticlesResponse {
+  Article article = 1;
+}
+
+message getArticleRequest {
+  int32 id = 1;
+}
+
+message getArticleResponse {
+  Article article = 1;
+  string result = 2;
+}
+
+message insertArticleRequest {
+  Article article = 1;
+}
+
+message insertArticleResponse {
+  int32 id = 1;
+  string result = 2;
+}
+
+service ArticlesService {
+  rpc GetArticles(getArticlesRequest) returns (stream getArticlesResponse) {};
+  rpc GetArticle(getArticleRequest) returns (getArticleResponse) {};
+  rpc InsertArticle(insertArticleRequest) returns (insertArticleResponse) {};
+}
