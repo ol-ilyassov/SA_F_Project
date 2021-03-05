@@ -5,7 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/jackc/pgx/v4/pgxpool"
-	"gitlab.com/ol-ilyassov/article_db/articlepb"
+	"github.com/ol-ilyassov/final/article_db/articlepb"
 	"google.golang.org/grpc"
 	"log"
 	"net"
