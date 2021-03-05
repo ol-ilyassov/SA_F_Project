@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"errors"
 	"github.com/jackc/pgx/v4/pgxpool"
+	"log"
 	"strconv"
 	"time"
 )
@@ -72,4 +74,21 @@ func (m *ArticleModel) Latest() ([]*Article, error) {
 		return nil, err
 	}
 	return snippets, nil
+}
+
+func (m *ArticleModel) Delete(id int) error {
+
+	stmt := "DELETE FROM snippets WHERE id = $1"
+
+	ct, err := m.DB.Exec(context.Background(), stmt, id)
+	if err != nil {
+		log.Printf("Unable to DELETE: %v\n", err)
+		return err
+	}
+
+	if ct.RowsAffected() == 0 {
+		return errors.New("no affected rows")
+	}
+
+	return nil
 }

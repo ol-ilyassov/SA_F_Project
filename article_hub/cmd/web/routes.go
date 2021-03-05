@@ -18,9 +18,7 @@ func (app *application) routes() http.Handler {
 	mux.Get("/snippet/:id", dynamicMiddleware.ThenFunc(app.showSnippet))
 
 	// Custom
-	mux.Del("", dynamicMiddleware.ThenFunc(app.deleteSnippet))
-	//mux.Get("/snippet/edit/:id", dynamicMiddleware.ThenFunc(app.updateSnippetForm))
-	//mux.Patch("", dynamicMiddleware.ThenFunc(app.updateSnippet))
+	mux.Post("/snippet/delete/:id", dynamicMiddleware.ThenFunc(app.deleteSnippet))
 
 	fileServer := http.FileServer(http.Dir("ui/static/"))
 	mux.Get("/static/", http.StripPrefix("/static", fileServer))

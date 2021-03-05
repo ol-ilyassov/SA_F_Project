@@ -70,7 +70,7 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatalf("Error while calling GetArticle RPC: %v", err)
 	}
-	log.Printf("Response from GetArticle RPC, ArticleID: %v", res.GetResult())
+	log.Printf("Response from GetArticle RPC: %s, ArticleID: %v", res.GetResult(), res.GetArticle().GetId())
 
 	article := &models.Snippet{
 		ID:      int(res.GetArticle().GetId()),
@@ -119,19 +119,28 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatalf("Error while calling InsertArticle RPC: %v", err)
 	}
-	log.Printf("Response from InsertArticle RPC: %v", res.Result)
+	log.Printf("Response from InsertArticle RPC: %v", res.GetResult())
 
 	app.session.Put(r, "flash", "Snippet successfully created!")
 	http.Redirect(w, r, fmt.Sprintf("/snippet/%d", res.GetId()), http.StatusSeeOther)
 }
 
 func (app *application) deleteSnippet(w http.ResponseWriter, r *http.Request) {
-	//err := r.ParseForm()
-	//if err != nil {
-	//	app.clientError(w, http.StatusBadRequest)
-	//	return
-	//}
-	//
-	//form := forms.New(r.)
 
+	id, err := strconv.Atoi(r.URL.Query().Get(":id"))
+	if err != nil || id < 1 {
+		app.notFound(w)
+		return
+	}
+
+	req := &articlepb.DeleteArticleRequest{
+		Id: int32(id),
+	}
+	res, err := app.snippets.DeleteArticle(context.Background(), req)
+	if err != nil {
+		log.Fatalf("Error while calling DeleteArticle RPC: %v", err)
+	}
+	log.Printf("Response from DeleteArticle RPC: %v", res.GetResult())
+
+	http.Redirect(w, r, "/", http.StatusOK)
 }

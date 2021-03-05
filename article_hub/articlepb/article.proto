@@ -34,8 +34,17 @@ message insertArticleResponse {
   string result = 2;
 }
 
+message deleteArticleRequest {
+  int32 id = 1;
+}
+
+message deleteArticleResponse {
+  string result = 1;
+}
+
 service ArticlesService {
   rpc GetArticles(getArticlesRequest) returns (stream getArticlesResponse) {};
   rpc GetArticle(getArticleRequest) returns (getArticleResponse) {};
   rpc InsertArticle(insertArticleRequest) returns (insertArticleResponse) {};
+  rpc DeleteArticle(deleteArticleRequest) returns (deleteArticleResponse) {};
 }

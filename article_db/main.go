@@ -111,3 +111,21 @@ func (s *Server) InsertArticle(ctx context.Context, req *articlepb.InsertArticle
 
 	return res, nil
 }
+
+func (s *Server) DeleteArticle(ctx context.Context, req *articlepb.DeleteArticleRequest) (*articlepb.DeleteArticleResponse, error) {
+	log.Printf("DeleteArticle function was invoked with %v \n", req)
+
+	result := "Success"
+
+	err := m.Delete(int(req.GetId()))
+	if err != nil {
+		log.Fatalf("Error while processing DeleteArticle: %v", err.Error())
+		result = "Fail"
+	}
+
+	res := &articlepb.DeleteArticleResponse{
+		Result: result,
+	}
+
+	return res, nil
+}

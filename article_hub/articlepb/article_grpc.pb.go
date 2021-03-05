@@ -21,6 +21,7 @@ type ArticlesServiceClient interface {
 	GetArticles(ctx context.Context, in *GetArticlesRequest, opts ...grpc.CallOption) (ArticlesService_GetArticlesClient, error)
 	GetArticle(ctx context.Context, in *GetArticleRequest, opts ...grpc.CallOption) (*GetArticleResponse, error)
 	InsertArticle(ctx context.Context, in *InsertArticleRequest, opts ...grpc.CallOption) (*InsertArticleResponse, error)
+	DeleteArticle(ctx context.Context, in *DeleteArticleRequest, opts ...grpc.CallOption) (*DeleteArticleResponse, error)
 }
 
 type articlesServiceClient struct {
@@ -81,6 +82,15 @@ func (c *articlesServiceClient) InsertArticle(ctx context.Context, in *InsertArt
 	return out, nil
 }
 
+func (c *articlesServiceClient) DeleteArticle(ctx context.Context, in *DeleteArticleRequest, opts ...grpc.CallOption) (*DeleteArticleResponse, error) {
+	out := new(DeleteArticleResponse)
+	err := c.cc.Invoke(ctx, "/articlepb.ArticlesService/DeleteArticle", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ArticlesServiceServer is the server API for ArticlesService service.
 // All implementations must embed UnimplementedArticlesServiceServer
 // for forward compatibility
@@ -88,6 +98,7 @@ type ArticlesServiceServer interface {
 	GetArticles(*GetArticlesRequest, ArticlesService_GetArticlesServer) error
 	GetArticle(context.Context, *GetArticleRequest) (*GetArticleResponse, error)
 	InsertArticle(context.Context, *InsertArticleRequest) (*InsertArticleResponse, error)
+	DeleteArticle(context.Context, *DeleteArticleRequest) (*DeleteArticleResponse, error)
 	mustEmbedUnimplementedArticlesServiceServer()
 }
 
@@ -103,6 +114,9 @@ func (UnimplementedArticlesServiceServer) GetArticle(context.Context, *GetArticl
 }
 func (UnimplementedArticlesServiceServer) InsertArticle(context.Context, *InsertArticleRequest) (*InsertArticleResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method InsertArticle not implemented")
+}
+func (UnimplementedArticlesServiceServer) DeleteArticle(context.Context, *DeleteArticleRequest) (*DeleteArticleResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteArticle not implemented")
 }
 func (UnimplementedArticlesServiceServer) mustEmbedUnimplementedArticlesServiceServer() {}
 
@@ -174,6 +188,24 @@ func _ArticlesService_InsertArticle_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ArticlesService_DeleteArticle_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteArticleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ArticlesServiceServer).DeleteArticle(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/articlepb.ArticlesService/DeleteArticle",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ArticlesServiceServer).DeleteArticle(ctx, req.(*DeleteArticleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ArticlesService_ServiceDesc is the grpc.ServiceDesc for ArticlesService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -189,6 +221,10 @@ var ArticlesService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "InsertArticle",
 			Handler:    _ArticlesService_InsertArticle_Handler,
 		},
+		{
+			MethodName: "DeleteArticle",
+			Handler:    _ArticlesService_DeleteArticle_Handler,
+		},
 	},
 	Streams: []grpc.StreamDesc{
 		{
@@ -197,5 +233,5 @@ var ArticlesService_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "article_hub/articlepb/article.proto",
+	Metadata: "article_db/articlepb/article.proto",
 }
