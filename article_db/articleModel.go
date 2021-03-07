@@ -60,7 +60,7 @@ func (m *ArticleModel) Latest() ([]*Article, error) {
 	}
 	defer rows.Close()
 
-	var snippets []*Article
+	var articles []*Article
 
 	for rows.Next() {
 		s := &Article{}
@@ -68,12 +68,12 @@ func (m *ArticleModel) Latest() ([]*Article, error) {
 		if err != nil {
 			return nil, err
 		}
-		snippets = append(snippets, s)
+		articles = append(articles, s)
 	}
 	if err = rows.Err(); err != nil {
 		return nil, err
 	}
-	return snippets, nil
+	return articles, nil
 }
 
 func (m *ArticleModel) Delete(id int) error {

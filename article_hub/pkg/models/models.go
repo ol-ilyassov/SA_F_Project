@@ -11,7 +11,7 @@ var (
 	ErrDuplicateEmail     = errors.New("models: duplicate email")
 )
 
-type Snippet struct {
+type Article struct {
 	ID      int
 	Title   string
 	Content string

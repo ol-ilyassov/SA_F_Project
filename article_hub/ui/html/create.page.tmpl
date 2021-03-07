@@ -1,7 +1,7 @@
 {{template "base" .}}
-{{define "title"}}Create a New Snippet{{end}}
+{{define "title"}}Create a New Article{{end}}
 {{define "main"}}
-    <form action='/snippet/create' method='POST'>
+    <form action='/article/create' method='POST'>
         {{with .Form}}
             <div>
                 <label>Title:</label>
@@ -28,7 +28,7 @@
                 <input type='radio' name='expires' value='1' {{if (eq $exp "1")}}checked{{end}}> One Day
             </div>
             <div>
-                <input type='submit' value='Publish snippet'>
+                <input type='submit' value='Publish article'>
             </div>
         {{end}}
     </form>

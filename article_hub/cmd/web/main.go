@@ -26,7 +26,7 @@ type application struct {
 	errorLog      *log.Logger
 	infoLog       *log.Logger
 	session       *sessions.Session
-	snippets      articlepb.ArticlesServiceClient
+	articles      articlepb.ArticlesServiceClient
 	notifier      notifypb.NotifierServiceClient
 	templateCache map[string]*template.Template
 	users         *postgres.UserModel
@@ -71,14 +71,12 @@ func main() {
 
 	session := sessions.New([]byte(*secret))
 	session.Lifetime = 12 * time.Hour
-	//session.Secure = true
-	//session.SameSite = http.SameSiteStrictMode
 
 	app := &application{
 		errorLog:      errorLog,
 		infoLog:       infoLog,
 		session:       session,
-		snippets:      articlesDBService,
+		articles:      articlesDBService,
 		notifier:      notifierService,
 		templateCache: templateCache,
 		users:         &postgres.UserModel{DB: db},

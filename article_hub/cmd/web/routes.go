@@ -13,13 +13,12 @@ func (app *application) routes() http.Handler {
 
 	mux := pat.New()
 	mux.Get("/", dynamicMiddleware.ThenFunc(app.home))
-	mux.Get("/snippet/create", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(app.createSnippetForm))
-	mux.Post("/snippet/create", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(app.createSnippet))
-	mux.Get("/snippet/:id", dynamicMiddleware.ThenFunc(app.showSnippet))
-	//mux.Get("/snippet/:id", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(app.showSnippet))
+	mux.Get("/article/create", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(app.createArticleForm))
+	mux.Post("/article/create", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(app.createArticle))
+	mux.Get("/article/:id", dynamicMiddleware.ThenFunc(app.showArticle))
 
 	// Custom //ADD Check As for Create with additional parameter author
-	mux.Post("/snippet/delete/:id", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(app.deleteSnippet))
+	mux.Post("/article/delete/:id", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(app.deleteArticle))
 
 	// Send Mail
 	mux.Get("/sendMail", dynamicMiddleware.ThenFunc(app.sendMail))

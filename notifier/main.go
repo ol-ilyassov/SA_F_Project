@@ -44,8 +44,7 @@ func (s *Server) SendNotification(ctx context.Context, req *notifypb.NotifyReque
 
 	message := "From: " + from + "\n" +
 		"To: " + recipient + "\n" +
-		"Subject: New Article is Published!\n\n" +
-		body
+		"Subject: New Article is Published!\n\n" + body
 
 	to := []string{
 		recipient,

@@ -23,13 +23,13 @@ func StringToTime(value string) time.Time {
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 
 	req := &articlepb.GetArticlesRequest{}
-	stream, err := app.snippets.GetArticles(context.Background(), req)
+	stream, err := app.articles.GetArticles(context.Background(), req)
 	if err != nil {
 		log.Fatalf("Error while calling GetArticles RPC: %v", err)
 	}
 	defer stream.CloseSend()
 
-	var articles []*models.Snippet
+	var articles []*models.Article
 
 LOOP:
 	for {
@@ -42,7 +42,7 @@ LOOP:
 		}
 		log.Printf("Response from GetArticles RPC, ArticleID: %v \n", res.GetArticle().GetId())
 
-		tempArticle := &models.Snippet{
+		tempArticle := &models.Article{
 			ID:      int(res.GetArticle().GetId()),
 			Title:   res.GetArticle().GetTitle(),
 			Content: res.GetArticle().GetContent(),
@@ -54,11 +54,11 @@ LOOP:
 
 	// Web Design
 	app.render(w, r, "home.page.tmpl", &templateData{
-		Snippets: articles,
+		Articles: articles,
 	})
 }
 
-func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
+func (app *application) showArticle(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.URL.Query().Get(":id"))
 	if err != nil || id < 1 {
 		app.notFound(w)
@@ -68,13 +68,13 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 	req := &articlepb.GetArticleRequest{
 		Id: int32(id),
 	}
-	res, err := app.snippets.GetArticle(context.Background(), req)
+	res, err := app.articles.GetArticle(context.Background(), req)
 	if err != nil {
 		log.Fatalf("Error while calling GetArticle RPC: %v", err)
 	}
 	log.Printf("Response from GetArticle RPC: %s, ArticleID: %v", res.GetResult(), res.GetArticle().GetId())
 
-	article := &models.Snippet{
+	article := &models.Article{
 		ID:      int(res.GetArticle().GetId()),
 		Title:   res.GetArticle().GetTitle(),
 		Content: res.GetArticle().GetContent(),
@@ -84,17 +84,17 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 
 	// Web Design
 	app.render(w, r, "show.page.tmpl", &templateData{
-		Snippet: article,
+		Article: article,
 	})
 }
 
-func (app *application) createSnippetForm(w http.ResponseWriter, r *http.Request) {
+func (app *application) createArticleForm(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, "create.page.tmpl", &templateData{
 		Form: forms.New(nil),
 	})
 }
 
-func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
+func (app *application) createArticle(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
@@ -117,17 +117,17 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 			Expires: form.Get("expires"),
 		},
 	}
-	res, err := app.snippets.InsertArticle(context.Background(), req)
+	res, err := app.articles.InsertArticle(context.Background(), req)
 	if err != nil {
 		log.Fatalf("Error while calling InsertArticle RPC: %v", err)
 	}
 	log.Printf("Response from InsertArticle RPC: %v", res.GetResult())
 
-	app.session.Put(r, "flash", "Snippet successfully created!")
-	http.Redirect(w, r, fmt.Sprintf("/snippet/%d", res.GetId()), http.StatusSeeOther)
+	app.session.Put(r, "flash", "Article successfully created!")
+	http.Redirect(w, r, fmt.Sprintf("/article/%d", res.GetId()), http.StatusSeeOther)
 }
 
-func (app *application) deleteSnippet(w http.ResponseWriter, r *http.Request) {
+func (app *application) deleteArticle(w http.ResponseWriter, r *http.Request) {
 
 	id, err := strconv.Atoi(r.URL.Query().Get(":id"))
 	if err != nil || id < 1 {
@@ -138,11 +138,28 @@ func (app *application) deleteSnippet(w http.ResponseWriter, r *http.Request) {
 	req := &articlepb.DeleteArticleRequest{
 		Id: int32(id),
 	}
-	res, err := app.snippets.DeleteArticle(context.Background(), req)
+	res, err := app.articles.DeleteArticle(context.Background(), req)
 	if err != nil {
 		log.Fatalf("Error while calling DeleteArticle RPC: %v", err)
 	}
 	log.Printf("Response from DeleteArticle RPC: %v", res.GetResult())
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+func (app *application) sendMail(w http.ResponseWriter, r *http.Request) {
+	req := &notifypb.NotifyRequest{
+		Email: &notifypb.Email{
+			Address: "ol.ilyassov@gmail.com",
+			Title:   "Golang Microservices",
+			Time:    time.Now().Format("02 Jan 2006 at 15:04"),
+		},
+	}
+	res, err := app.notifier.SendNotification(context.Background(), req)
+	if err != nil {
+		log.Fatalf("Error while calling SendNotification RPC: %v", err)
+	}
+	log.Printf("Response from SendNotification RPC: %v", res.GetResult())
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
@@ -224,7 +241,6 @@ func (app *application) loginUser(w http.ResponseWriter, r *http.Request) {
 
 	app.session.Put(r, "authenticatedUserID", id)
 
-	//http.Redirect(w, r, "/snippet/create", http.StatusSeeOther)
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
@@ -232,23 +248,5 @@ func (app *application) logoutUser(w http.ResponseWriter, r *http.Request) {
 	app.session.Remove(r, "authenticatedUserID")
 
 	app.session.Put(r, "flash", "You've been logged out successfully!")
-	http.Redirect(w, r, "/", http.StatusSeeOther)
-}
-
-func (app *application) sendMail(w http.ResponseWriter, r *http.Request) {
-
-	req := &notifypb.NotifyRequest{
-		Email: &notifypb.Email{
-			Address: "ol.ilyassov@gmail.com",
-			Title:   "Golang Microservices",
-			Time:    time.Now().Format("02 Jan 2006 at 15:04"),
-		},
-	}
-	res, err := app.notifier.SendNotification(context.Background(), req)
-	if err != nil {
-		log.Fatalf("Error while calling SendNotification RPC: %v", err)
-	}
-	log.Printf("Response from SendNotification RPC: %v", res.GetResult())
-
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

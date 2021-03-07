@@ -1,8 +1,8 @@
 {{template "base" .}}
-{{define "title"}}Snippet #{{.Snippet.ID}}{{end}}
+{{define "title"}}Article #{{.Article.ID}}{{end}}
 {{define "main"}}
-    {{with .Snippet}}
-        <div class='snippet'>
+    {{with .Article}}
+        <div class='article'>
             <div class='metadata'>
                 <strong>{{.Title}}</strong>
                 <span>#{{.ID}}</span>
@@ -10,12 +10,12 @@
     {{end}}
             {{if .IsAuthenticated}}
                 <div class='metadata'>
-                    <form action='/snippet/delete/{{.Snippet.ID}}' method='POST'>
+                    <form action='/article/delete/{{.Article.ID}}' method='POST'>
                         <button>Delete</button>
                     </form>
                 </div>
             {{end}}
-    {{with .Snippet}}
+    {{with .Article}}
             <pre><code>{{.Content}}</code></pre>
             <div class='metadata'>
                 <time>{{.Created | humanDate | printf "Created: %s"}}</time>

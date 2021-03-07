@@ -13,8 +13,8 @@ type templateData struct {
 	Flash           string
 	Form            *forms.Form
 	IsAuthenticated bool
-	Snippet         *models.Snippet
-	Snippets        []*models.Snippet
+	Article         *models.Article
+	Articles        []*models.Article
 }
 
 func humanDate(t time.Time) string {
