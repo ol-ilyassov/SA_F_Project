@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package notifypb;
+
+message Email {
+  string address = 1;
+  string title = 2;
+  string time = 3;
+}
+
+message notifyRequest {
+  Email email = 1;
+}
+
+message notifyResponse {
+  string result = 1;
+}
+
+service NotifierService {
+  rpc sendNotification(notifyRequest) returns (notifyResponse) {};
+}

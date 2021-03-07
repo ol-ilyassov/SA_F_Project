@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/ol-ilyassov/final/article_hub/articlepb"
+	"github.com/ol-ilyassov/final/article_hub/notifypb"
 	"github.com/ol-ilyassov/final/article_hub/pkg/forms"
 	"github.com/ol-ilyassov/final/article_hub/pkg/models"
 	"io"
@@ -142,5 +144,111 @@ func (app *application) deleteSnippet(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Printf("Response from DeleteArticle RPC: %v", res.GetResult())
 
-	http.Redirect(w, r, "/", http.StatusOK)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+func (app *application) signupUserForm(w http.ResponseWriter, r *http.Request) {
+	app.render(w, r, "signup.page.tmpl", &templateData{
+		Form: forms.New(nil),
+	})
+}
+
+func (app *application) signupUser(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+	form := forms.New(r.PostForm)
+	form.Required("name", "email", "password")
+	form.MaxLength("name", 255)
+	form.MaxLength("email", 255)
+	form.MatchesPattern("email", forms.EmailRX)
+	form.MinLength("password", 10)
+	if !form.Valid() {
+		app.render(w, r, "signup.page.tmpl", &templateData{Form: form})
+		return
+	}
+	// Try to create a new user record in the database. If the email already exists
+	// add an error message to the form and re-display it.
+	err = app.users.Insert(form.Get("name"), form.Get("email"), form.Get("password"))
+	if err != nil {
+		if errors.Is(err, models.ErrDuplicateEmail) {
+			form.Errors.Add("email", "Address is already in use")
+			app.render(w, r, "signup.page.tmpl", &templateData{Form: form})
+		} else {
+			app.serverError(w, err)
+		}
+		return
+	}
+	// Otherwise add a confirmation flash message to the session confirming that
+	// their signup worked and asking them to log in.
+	app.session.Put(r, "flash", "Your signup was successful. Please log in.")
+	// And redirect the user to the login page.
+	http.Redirect(w, r, "/user/login", http.StatusSeeOther)
+}
+
+func (app *application) loginUserForm(w http.ResponseWriter, r *http.Request) {
+	app.render(w, r, "login.page.tmpl", &templateData{
+		Form: forms.New(nil),
+	})
+}
+
+func (app *application) loginUser(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	form := forms.New(r.PostForm)
+	form.Required("email", "password")
+	if !form.Valid() {
+		form.Errors.Add("generic", "Email and Password are required")
+		app.render(w, r, "login.page.tmpl", &templateData{Form: form})
+		return
+	}
+	id, err := app.users.Authenticate(form.Get("email"), form.Get("password"))
+	if err != nil {
+		if err == models.ErrInvalidCredentials {
+			form.Errors.Add("generic", "Email or Password is incorrect")
+			app.render(w, r, "login.page.tmpl", &templateData{Form: form})
+		} else if err == models.ErrNoRecord {
+			form.Errors.Add("generic", "No user with given Email")
+			app.render(w, r, "login.page.tmpl", &templateData{Form: form})
+		} else {
+			app.serverError(w, err)
+		}
+		return
+	}
+
+	app.session.Put(r, "authenticatedUserID", id)
+
+	//http.Redirect(w, r, "/snippet/create", http.StatusSeeOther)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+func (app *application) logoutUser(w http.ResponseWriter, r *http.Request) {
+	app.session.Remove(r, "authenticatedUserID")
+
+	app.session.Put(r, "flash", "You've been logged out successfully!")
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+func (app *application) sendMail(w http.ResponseWriter, r *http.Request) {
+
+	req := &notifypb.NotifyRequest{
+		Email: &notifypb.Email{
+			Address: "ol.ilyassov@gmail.com",
+			Title:   "Golang Microservices",
+			Time:    time.Now().Format("02 Jan 2006 at 15:04"),
+		},
+	}
+	res, err := app.notifier.SendNotification(context.Background(), req)
+	if err != nil {
+		log.Fatalf("Error while calling SendNotification RPC: %v", err)
+	}
+	log.Printf("Response from SendNotification RPC: %v", res.GetResult())
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

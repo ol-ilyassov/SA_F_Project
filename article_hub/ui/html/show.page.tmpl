@@ -7,6 +7,15 @@
                 <strong>{{.Title}}</strong>
                 <span>#{{.ID}}</span>
             </div>
+    {{end}}
+            {{if .IsAuthenticated}}
+                <div class='metadata'>
+                    <form action='/snippet/delete/{{.Snippet.ID}}' method='POST'>
+                        <button>Delete</button>
+                    </form>
+                </div>
+            {{end}}
+    {{with .Snippet}}
             <pre><code>{{.Content}}</code></pre>
             <div class='metadata'>
                 <time>{{.Created | humanDate | printf "Created: %s"}}</time>

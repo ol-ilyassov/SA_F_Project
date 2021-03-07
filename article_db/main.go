@@ -115,16 +115,14 @@ func (s *Server) InsertArticle(ctx context.Context, req *articlepb.InsertArticle
 func (s *Server) DeleteArticle(ctx context.Context, req *articlepb.DeleteArticleRequest) (*articlepb.DeleteArticleResponse, error) {
 	log.Printf("DeleteArticle function was invoked with %v \n", req)
 
-	result := "Success"
+	res := &articlepb.DeleteArticleResponse{
+		Result: "Success",
+	}
 
 	err := m.Delete(int(req.GetId()))
 	if err != nil {
+		res.Result = "Fail"
 		log.Fatalf("Error while processing DeleteArticle: %v", err.Error())
-		result = "Fail"
-	}
-
-	res := &articlepb.DeleteArticleResponse{
-		Result: result,
 	}
 
 	return res, nil
