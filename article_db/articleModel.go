@@ -92,3 +92,27 @@ func (m *ArticleModel) Delete(id int) error {
 
 	return nil
 }
+
+func (m *ArticleModel) Search(title string) ([]*Article, error) {
+	stmt := "SELECT id, LOWER(title), content, created, expires FROM snippets WHERE title LIKE '%' || $1 || '%'"
+	rows, err := m.DB.Query(context.Background(), stmt, time.Now(), title)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var articles []*Article
+
+	for rows.Next() {
+		s := &Article{}
+		err = rows.Scan(&s.ID, &s.Title, &s.Content, &s.Created, &s.Expires)
+		if err != nil {
+			return nil, err
+		}
+		articles = append(articles, s)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return articles, nil
+}

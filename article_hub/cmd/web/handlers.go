@@ -250,3 +250,57 @@ func (app *application) logoutUser(w http.ResponseWriter, r *http.Request) {
 	app.session.Put(r, "flash", "You've been logged out successfully!")
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
+
+func (app *application) searchForm(w http.ResponseWriter, r *http.Request) {
+	app.render(w, r, "search.page.tmpl", &templateData{
+		Form: forms.New(nil),
+	})
+}
+
+func (app *application) search(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	form := forms.New(r.PostForm)
+	form.Required("title")
+	if !form.Valid() {
+		app.render(w, r, "search.page.tmpl", &templateData{Form: form})
+		return
+	}
+	req := &articlepb.SearchArticlesRequest{
+		Title: form.Get("title"),
+	}
+	stream, err := app.articles.SearchArticles(context.Background(), req)
+	if err != nil {
+		log.Fatalf("Error while calling SearchArticles RPC: %v", err)
+	}
+	defer stream.CloseSend()
+	var articles []*models.Article
+
+LOOP:
+	for {
+		res, err := stream.Recv()
+		if err != nil {
+			if err == io.EOF {
+				break LOOP
+			}
+			log.Fatalf("Error while receiving from SearchArticles RPC: %v", err)
+		}
+		log.Printf("Response from SearchArticles RPC, ArticleTitle: %v \n", res.GetArticle().GetTitle())
+
+		tempArticle := &models.Article{
+			ID:      int(res.GetArticle().GetId()),
+			Title:   res.GetArticle().GetTitle(),
+			Content: res.GetArticle().GetContent(),
+			Created: StringToTime(res.GetArticle().GetCreated()),
+			Expires: StringToTime(res.GetArticle().GetExpires()),
+		}
+		articles = append(articles, tempArticle)
+	}
+	app.render(w, r, "search.page.tmpl", &templateData{
+		Articles: articles,
+	})
+}

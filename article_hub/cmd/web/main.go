@@ -40,7 +40,7 @@ func main() {
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
-	dns := flag.String("dns", "postgres://postgres:1@localhost:5432/snippetbox", "Postgre data source name")
+	dns := flag.String("dns", "postgres://postgres:123@localhost:5432/snippetbox", "Postgre data source name")
 	db, err := openDB(*dns)
 	if err != nil {
 		log.Fatal(err)

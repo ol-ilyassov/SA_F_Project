@@ -1,7 +1,21 @@
 {{template "base" .}}
-{{define "title"}}Home{{end}}
+{{define "title"}}Search an Articles{{end}}
 {{define "main"}}
-    <h2>Latest Articles</h2>
+    <form action='/search' method='POST'>
+        {{with .Form}}
+            <div>
+                <label>Search by Title</label>
+                {{with .Errors.Get "title"}}
+                    <label class='error'>{{.}}</label>
+                {{end}}
+                <input type='text' name='title' value='{{.Get "title"}}'>
+            </div>
+            <div>
+                <input type='submit' value='Find'>
+            </div>
+        {{end}}
+    </form>
+    <h2>Found Articles</h2>
     {{if .Articles}}
         <table>
             <tr>
@@ -19,5 +33,5 @@
         </table>
     {{else}}
         <p>There's nothing to see here... yet!</p>
-    {{end}}
+{{end}}
 {{end}}

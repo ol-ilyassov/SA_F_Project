@@ -42,9 +42,18 @@ message deleteArticleResponse {
   string result = 1;
 }
 
+message searchArticlesRequest {
+  string title = 1;
+}
+
+message searchArticlesResponse {
+  Article article = 1;
+}
+
 service ArticlesService {
   rpc GetArticles(getArticlesRequest) returns (stream getArticlesResponse) {};
   rpc GetArticle(getArticleRequest) returns (getArticleResponse) {};
   rpc InsertArticle(insertArticleRequest) returns (insertArticleResponse) {};
   rpc DeleteArticle(deleteArticleRequest) returns (deleteArticleResponse) {};
+  rpc SearchArticles(searchArticlesRequest) returns (stream searchArticlesResponse) {};
 }

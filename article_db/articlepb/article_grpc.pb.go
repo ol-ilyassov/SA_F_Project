@@ -22,6 +22,7 @@ type ArticlesServiceClient interface {
 	GetArticle(ctx context.Context, in *GetArticleRequest, opts ...grpc.CallOption) (*GetArticleResponse, error)
 	InsertArticle(ctx context.Context, in *InsertArticleRequest, opts ...grpc.CallOption) (*InsertArticleResponse, error)
 	DeleteArticle(ctx context.Context, in *DeleteArticleRequest, opts ...grpc.CallOption) (*DeleteArticleResponse, error)
+	SearchArticles(ctx context.Context, in *SearchArticlesRequest, opts ...grpc.CallOption) (ArticlesService_SearchArticlesClient, error)
 }
 
 type articlesServiceClient struct {
@@ -91,6 +92,38 @@ func (c *articlesServiceClient) DeleteArticle(ctx context.Context, in *DeleteArt
 	return out, nil
 }
 
+func (c *articlesServiceClient) SearchArticles(ctx context.Context, in *SearchArticlesRequest, opts ...grpc.CallOption) (ArticlesService_SearchArticlesClient, error) {
+	stream, err := c.cc.NewStream(ctx, &ArticlesService_ServiceDesc.Streams[1], "/articlepb.ArticlesService/SearchArticles", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &articlesServiceSearchArticlesClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type ArticlesService_SearchArticlesClient interface {
+	Recv() (*SearchArticlesResponse, error)
+	grpc.ClientStream
+}
+
+type articlesServiceSearchArticlesClient struct {
+	grpc.ClientStream
+}
+
+func (x *articlesServiceSearchArticlesClient) Recv() (*SearchArticlesResponse, error) {
+	m := new(SearchArticlesResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // ArticlesServiceServer is the server API for ArticlesService service.
 // All implementations must embed UnimplementedArticlesServiceServer
 // for forward compatibility
@@ -99,6 +132,7 @@ type ArticlesServiceServer interface {
 	GetArticle(context.Context, *GetArticleRequest) (*GetArticleResponse, error)
 	InsertArticle(context.Context, *InsertArticleRequest) (*InsertArticleResponse, error)
 	DeleteArticle(context.Context, *DeleteArticleRequest) (*DeleteArticleResponse, error)
+	SearchArticles(*SearchArticlesRequest, ArticlesService_SearchArticlesServer) error
 	mustEmbedUnimplementedArticlesServiceServer()
 }
 
@@ -117,6 +151,9 @@ func (UnimplementedArticlesServiceServer) InsertArticle(context.Context, *Insert
 }
 func (UnimplementedArticlesServiceServer) DeleteArticle(context.Context, *DeleteArticleRequest) (*DeleteArticleResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteArticle not implemented")
+}
+func (UnimplementedArticlesServiceServer) SearchArticles(*SearchArticlesRequest, ArticlesService_SearchArticlesServer) error {
+	return status.Errorf(codes.Unimplemented, "method SearchArticles not implemented")
 }
 func (UnimplementedArticlesServiceServer) mustEmbedUnimplementedArticlesServiceServer() {}
 
@@ -206,6 +243,27 @@ func _ArticlesService_DeleteArticle_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ArticlesService_SearchArticles_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(SearchArticlesRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(ArticlesServiceServer).SearchArticles(m, &articlesServiceSearchArticlesServer{stream})
+}
+
+type ArticlesService_SearchArticlesServer interface {
+	Send(*SearchArticlesResponse) error
+	grpc.ServerStream
+}
+
+type articlesServiceSearchArticlesServer struct {
+	grpc.ServerStream
+}
+
+func (x *articlesServiceSearchArticlesServer) Send(m *SearchArticlesResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 // ArticlesService_ServiceDesc is the grpc.ServiceDesc for ArticlesService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -230,6 +288,11 @@ var ArticlesService_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "GetArticles",
 			Handler:       _ArticlesService_GetArticles_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "SearchArticles",
+			Handler:       _ArticlesService_SearchArticles_Handler,
 			ServerStreams: true,
 		},
 	},

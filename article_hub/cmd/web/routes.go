@@ -23,6 +23,10 @@ func (app *application) routes() http.Handler {
 	// Send Mail
 	mux.Get("/sendMail", dynamicMiddleware.ThenFunc(app.sendMail))
 
+	// Search Articles
+	mux.Get("/search", dynamicMiddleware.ThenFunc(app.searchForm))
+	mux.Post("/search", dynamicMiddleware.ThenFunc(app.search))
+
 	// User
 	mux.Get("/user/signup", dynamicMiddleware.ThenFunc(app.signupUserForm))
 	mux.Post("/user/signup", dynamicMiddleware.ThenFunc(app.signupUser))

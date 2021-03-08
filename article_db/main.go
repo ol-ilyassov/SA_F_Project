@@ -18,7 +18,7 @@ type Server struct {
 
 func main() {
 	// Connection to DB
-	dns := flag.String("dns", "postgres://postgres:1@localhost:5432/snippetbox", "Postgre data source name")
+	dns := flag.String("dns", "postgres://postgres:123@localhost:5432/snippetbox", "Postgre data source name")
 	db, err := openDB(*dns)
 	if err != nil {
 		log.Fatal(err)
@@ -126,4 +126,30 @@ func (s *Server) DeleteArticle(ctx context.Context, req *articlepb.DeleteArticle
 	}
 
 	return res, nil
+}
+
+func (s *Server) SearchArticles(req *articlepb.SearchArticlesRequest, stream articlepb.ArticlesService_SearchArticlesServer) error {
+	log.Printf("SearchArticles function was invoked\n")
+
+	arr, err := m.Search(req.GetTitle())
+	if err != nil {
+		return err
+	}
+
+	for _, articleRes := range arr {
+		res := &articlepb.SearchArticlesResponse{
+			Article: &articlepb.Article{
+				Id:      int32(articleRes.ID),
+				Title:   articleRes.Title,
+				Content: articleRes.Content,
+				Created: articleRes.Created.String(),
+				Expires: articleRes.Expires.String(),
+			},
+		}
+		if err := stream.Send(res); err != nil {
+			log.Fatalf("Error while sending SearchArticles responses: %v", err.Error())
+		}
+	}
+
+	return nil
 }
