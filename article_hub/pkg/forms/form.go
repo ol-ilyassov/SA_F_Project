@@ -54,7 +54,6 @@ func (f *Form) PermittedValues(field string, opts ...string) {
 	f.Errors.Add(field, "This field is invalid")
 }
 
-// User
 func (f *Form) MinLength(field string, d int) {
 	value := f.Get(field)
 	if value == "" {

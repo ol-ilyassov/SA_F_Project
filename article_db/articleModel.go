@@ -52,7 +52,7 @@ func (m *ArticleModel) Get(id int) (*Article, error) {
 
 func (m *ArticleModel) Latest() ([]*Article, error) {
 
-	stmt := "SELECT id, title, content, created, expires FROM snippets WHERE expires > $1 ORDER BY created DESC LIMIT 10"
+	stmt := "SELECT id, title, content, created, expires FROM snippets WHERE expires > $1 ORDER BY created DESC"
 
 	rows, err := m.DB.Query(context.Background(), stmt, time.Now())
 	if err != nil {
@@ -94,7 +94,9 @@ func (m *ArticleModel) Delete(id int) error {
 }
 
 func (m *ArticleModel) Search(title string) ([]*Article, error) {
-	stmt := "SELECT id, LOWER(title), content, created, expires FROM snippets WHERE title LIKE '%' || $1 || '%'"
+
+	stmt := "SELECT id, title, content, created, expires FROM snippets WHERE expires > $1 AND LOWER(title) LIKE '%' || $2 || '%'"
+
 	rows, err := m.DB.Query(context.Background(), stmt, time.Now(), title)
 	if err != nil {
 		return nil, err
