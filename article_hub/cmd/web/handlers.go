@@ -43,13 +43,22 @@ LOOP:
 		}
 		log.Printf("Response from GetArticles RPC, ArticleID: %v \n", res.GetArticle().GetId())
 
+		reqUser := &authpb.GetUserRequest{
+			Id: res.GetArticle().GetAuthorid(),
+		}
+		resUser, err := app.auth.GetUser(context.Background(), reqUser)
+		if err != nil {
+			log.Fatalf("Error while calling GetUser RPC: %v", err)
+		}
+
 		tempArticle := &models.Article{
-			ID:       int(res.GetArticle().GetId()),
-			AuthorID: int(res.GetArticle().GetAuthorid()),
-			Title:    res.GetArticle().GetTitle(),
-			Content:  res.GetArticle().GetContent(),
-			Created:  StringToTime(res.GetArticle().GetCreated()),
-			Expires:  StringToTime(res.GetArticle().GetExpires()),
+			ID:         int(res.GetArticle().GetId()),
+			AuthorID:   int(res.GetArticle().GetAuthorid()),
+			AuthorName: resUser.GetUser().GetName(),
+			Title:      res.GetArticle().GetTitle(),
+			Content:    res.GetArticle().GetContent(),
+			Created:    StringToTime(res.GetArticle().GetCreated()),
+			Expires:    StringToTime(res.GetArticle().GetExpires()),
 		}
 		articles = append(articles, tempArticle)
 	}
@@ -77,7 +86,7 @@ func (app *application) showArticle(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Response from GetArticle RPC: %s, ArticleID: %v", res.GetResult(), res.GetArticle().GetId())
 
 	reqUser := &authpb.GetUserRequest{
-		Id: res.GetArticle().GetId(),
+		Id: res.GetArticle().GetAuthorid(),
 	}
 
 	resUser, err := app.auth.GetUser(context.Background(), reqUser)
@@ -321,13 +330,23 @@ LOOP:
 		}
 		log.Printf("Response from SearchArticles RPC, ArticleTitle: %v \n", res.GetArticle().GetTitle())
 
+		reqUser := &authpb.GetUserRequest{
+			Id: res.GetArticle().GetAuthorid(),
+		}
+
+		resUser, err := app.auth.GetUser(context.Background(), reqUser)
+		if err != nil {
+			log.Fatalf("Error while calling GetUser RPC: %v", err)
+		}
+
 		tempArticle := &models.Article{
-			ID:       int(res.GetArticle().GetId()),
-			AuthorID: int(res.GetArticle().GetAuthorid()),
-			Title:    res.GetArticle().GetTitle(),
-			Content:  res.GetArticle().GetContent(),
-			Created:  StringToTime(res.GetArticle().GetCreated()),
-			Expires:  StringToTime(res.GetArticle().GetExpires()),
+			ID:         int(res.GetArticle().GetId()),
+			AuthorID:   int(res.GetArticle().GetAuthorid()),
+			AuthorName: resUser.GetUser().GetName(),
+			Title:      res.GetArticle().GetTitle(),
+			Content:    res.GetArticle().GetContent(),
+			Created:    StringToTime(res.GetArticle().GetCreated()),
+			Expires:    StringToTime(res.GetArticle().GetExpires()),
 		}
 		articles = append(articles, tempArticle)
 	}

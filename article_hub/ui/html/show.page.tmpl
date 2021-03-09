@@ -9,7 +9,7 @@
             </div>
     {{end}}
         <div class='metadata'>
-            <strong>Author: {{.Article.AuthorID}}</strong>
+            <strong>Author: {{.Article.AuthorName}}</strong>
             <span>
                 {{if .IsAuthenticated}}
                     <form action='/article/delete/{{.Article.ID}}' method='POST'>
