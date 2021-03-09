@@ -17,7 +17,7 @@ type ArticleModel struct {
 
 func (m *ArticleModel) Insert(title, content, expires string, authorid int) (int, error) {
 
-	stmt := "INSERT INTO snippets (title, content, created, expires, authorid) VALUES ($1, $2, $3, $4, $5) RETURNING id"
+	stmt := "INSERT INTO articles (title, content, created, expires, authorid) VALUES ($1, $2, $3, $4, $5) RETURNING id"
 
 	var id uint64
 	days, err := strconv.Atoi(expires)
@@ -34,7 +34,7 @@ func (m *ArticleModel) Insert(title, content, expires string, authorid int) (int
 
 func (m *ArticleModel) Get(id int) (*Article, error) {
 
-	stmt := "SELECT id, title, content, created, expires, authorid FROM snippets WHERE expires > $1 AND id = $2"
+	stmt := "SELECT id, title, content, created, expires, authorid FROM articles WHERE expires > $1 AND id = $2"
 
 	row := m.DB.QueryRow(context.Background(), stmt, time.Now(), id)
 	s := &Article{}
@@ -52,7 +52,7 @@ func (m *ArticleModel) Get(id int) (*Article, error) {
 
 func (m *ArticleModel) Latest() ([]*Article, error) {
 
-	stmt := "SELECT id, title, content, created, expires, authorid FROM snippets WHERE expires > $1 ORDER BY created DESC"
+	stmt := "SELECT id, title, content, created, expires, authorid FROM articles WHERE expires > $1 ORDER BY created DESC"
 
 	rows, err := m.DB.Query(context.Background(), stmt, time.Now())
 	if err != nil {
@@ -78,7 +78,7 @@ func (m *ArticleModel) Latest() ([]*Article, error) {
 
 func (m *ArticleModel) Delete(id int) error {
 
-	stmt := "DELETE FROM snippets WHERE id = $1"
+	stmt := "DELETE FROM articles WHERE id = $1"
 
 	ct, err := m.DB.Exec(context.Background(), stmt, id)
 	if err != nil {
@@ -95,7 +95,7 @@ func (m *ArticleModel) Delete(id int) error {
 
 func (m *ArticleModel) Search(title string) ([]*Article, error) {
 
-	stmt := "SELECT id, title, content, created, expires, authorid FROM snippets WHERE expires > $1 AND LOWER(title) LIKE '%' || $2 || '%'"
+	stmt := "SELECT id, title, content, created, expires, authorid FROM articles WHERE expires > $1 AND LOWER(title) LIKE '%' || $2 || '%'"
 
 	rows, err := m.DB.Query(context.Background(), stmt, time.Now(), title)
 	if err != nil {
@@ -120,7 +120,7 @@ func (m *ArticleModel) Search(title string) ([]*Article, error) {
 }
 
 func (m *ArticleModel) Edit(title, content string, id int) error {
-	stmt := "UPDATE snippets SET title = $1, content = $2 WHERE id = $3"
+	stmt := "UPDATE articles SET title = $1, content = $2 WHERE id = $3"
 	ct, err := m.DB.Exec(context.Background(), stmt, title, content, id)
 	if err != nil {
 		log.Printf("Unable to EDIT: %v\n", err)

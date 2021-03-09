@@ -18,7 +18,7 @@ type Server struct {
 
 func main() {
 	// Connection to DB
-	dns := flag.String("dns", "postgres://postgres:1@localhost:5432/snippetbox", "Postgre data source name")
+	dns := flag.String("dns", "postgres://postgres:1@localhost:5432/articleshub", "Postgre data source name")
 	db, err := openDB(*dns)
 	if err != nil {
 		log.Fatal(err)
