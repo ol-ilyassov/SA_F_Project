@@ -12,6 +12,7 @@
             <strong>Author: {{.Article.AuthorName}}</strong>
             <span>
                 {{if .IsAuthenticated}}
+                    <a href="/article/edit/{{.Article.ID}}">Edit</a>
                     <form action='/article/delete/{{.Article.ID}}' method='POST'>
                         <button>Delete</button>
                     </form>

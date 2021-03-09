@@ -19,6 +19,8 @@ func (app *application) routes() http.Handler {
 
 	// Custom //ADD Check As for Create with additional parameter author
 	mux.Post("/article/delete/:id", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(app.deleteArticle))
+	mux.Get("/article/edit/:id", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(app.editArticleForm))
+	mux.Post("/article/edit/:id", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(app.editArticle))
 
 	// Send Mail
 	mux.Get("/sendMail", dynamicMiddleware.ThenFunc(app.sendMail))

@@ -118,3 +118,17 @@ func (m *ArticleModel) Search(title string) ([]*Article, error) {
 	}
 	return articles, nil
 }
+
+func (m *ArticleModel) Edit(title, content string, id int) error {
+	stmt := "UPDATE snippets SET title = $1, content = $2 WHERE id = $3"
+	ct, err := m.DB.Exec(context.Background(), stmt, title, content, id)
+	if err != nil {
+		log.Printf("Unable to EDIT: %v\n", err)
+		return err
+	}
+	if ct.RowsAffected() == 0 {
+		return errors.New("no affected rows")
+	}
+
+	return nil
+}

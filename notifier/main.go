@@ -17,7 +17,7 @@ type Server struct {
 
 func main() {
 	_ = godotenv.Load("globals.env")
-	port := "50055"
+	port := "60055"
 	l, err := net.Listen("tcp", "0.0.0.0:"+port)
 	if err != nil {
 		log.Fatalf("Failed to listen: %v\n", err)

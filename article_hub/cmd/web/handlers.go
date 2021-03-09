@@ -354,3 +354,71 @@ LOOP:
 		Articles: articles,
 	})
 }
+func (app *application) editArticleForm(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(r.URL.Query().Get(":id"))
+	if err != nil || id < 1 {
+		app.notFound(w)
+		return
+	}
+	req2 := &articlepb.GetArticleRequest{
+		Id: int32(id),
+	}
+	res2, err := app.articles.GetArticle(context.Background(), req2)
+	if err != nil {
+		log.Fatalf("Error while calling GetArticle RPC: %v", err)
+	}
+	log.Printf("Response from GetArticle RPC: %s, ArticleID: %v", res2.GetResult(), res2.GetArticle().GetId())
+
+	r.PostFormValue("title")
+	r.PostFormValue("content")
+	form := forms.New(r.PostForm)
+	article := &models.Article{
+		ID:      id,
+		Title:   res2.GetArticle().GetTitle(),
+		Content: res2.GetArticle().GetContent(),
+	}
+
+	form.Set("title", article.Title)
+	form.Set("content", article.Content)
+
+	app.render(w, r, "edit.page.tmpl", &templateData{
+		Form: form, Article: article,
+	})
+}
+
+func (app *application) editArticle(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(r.URL.Query().Get(":id"))
+	if err != nil || id < 1 {
+		app.notFound(w)
+		return
+	}
+
+	err = r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	form := forms.New(r.PostForm)
+	form.Required("title", "content")
+	form.MaxLength("title", 100)
+	if !form.Valid() {
+		app.render(w, r, "edit.page.tmpl", &templateData{Form: form, Article: &models.Article{ID: id}})
+		return
+	}
+
+	req := &articlepb.EditArticleRequest{
+		Article: &articlepb.Article{
+			Title:   form.Get("title"),
+			Content: form.Get("content"),
+			Id:      int32(id),
+		},
+	}
+	res, err := app.articles.EditArticle(context.Background(), req)
+	if err != nil {
+		log.Fatalf("Error while calling EditArticle RPC: %v", err)
+	}
+	log.Printf("Response from EditArticle RPC: %v", res.GetResult())
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+
+}

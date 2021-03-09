@@ -20,7 +20,7 @@ type Server struct {
 
 func main() {
 	// Connection to DB
-	dns := flag.String("dns", "postgres://postgres:1@localhost:5432/snippetbox", "Postgre data source name")
+	dns := flag.String("dns", "postgres://postgres:123@localhost:5432/snippetbox", "Postgre data source name")
 	db, err := openDB(*dns)
 	if err != nil {
 		log.Fatal(err)
@@ -32,7 +32,7 @@ func main() {
 	}
 
 	// Server Creation
-	port := "50059" // Port of Article_DB Microservice
+	port := "60059" // Port of Article_DB Microservice
 	l, err := net.Listen("tcp", "0.0.0.0:"+port)
 	if err != nil {
 		log.Fatalf("Failed to listen: %v\n", err)

@@ -39,7 +39,7 @@ func main() {
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
 	// Article_DB Microservice
-	port := "50051"
+	port := "60051"
 	conn1, err := grpc.Dial("localhost:"+port, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("Could not connect: %v", err)
@@ -48,7 +48,7 @@ func main() {
 	articlesDBService := articlepb.NewArticlesServiceClient(conn1)
 
 	// Notifier Service
-	port2 := "50055"
+	port2 := "60055"
 	conn2, err := grpc.Dial("localhost:"+port2, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("Could not connect: %v", err)
@@ -57,7 +57,7 @@ func main() {
 	notifierService := notifypb.NewNotifierServiceClient(conn2)
 
 	// Auth Service
-	port3 := "50059"
+	port3 := "60059"
 	conn3, err := grpc.Dial("localhost:"+port3, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("Could not connect: %v", err)

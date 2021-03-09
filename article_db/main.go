@@ -18,7 +18,7 @@ type Server struct {
 
 func main() {
 	// Connection to DB
-	dns := flag.String("dns", "postgres://postgres:1@localhost:5432/snippetbox", "Postgre data source name")
+	dns := flag.String("dns", "postgres://postgres:123@localhost:5432/snippetbox", "Postgre data source name")
 	db, err := openDB(*dns)
 	if err != nil {
 		log.Fatal(err)
@@ -30,7 +30,7 @@ func main() {
 	}
 
 	// Server Creation
-	port := "50051" // Port of Article_DB Microservice
+	port := "60051" // Port of Article_DB Microservice
 	l, err := net.Listen("tcp", "0.0.0.0:"+port)
 	if err != nil {
 		log.Fatalf("Failed to listen: %v\n", err)
@@ -160,4 +160,19 @@ func (s *Server) SearchArticles(req *articlepb.SearchArticlesRequest, stream art
 	}
 
 	return nil
+}
+
+func (s *Server) EditArticle(ctx context.Context, req *articlepb.EditArticleRequest) (*articlepb.EditArticleResponse, error) {
+	log.Printf("EditArticle function was invoked with %v \n", req)
+	res := &articlepb.EditArticleResponse{
+		Result: "Success",
+	}
+
+	err := m.Edit(req.GetArticle().GetTitle(), req.GetArticle().GetContent(), int(req.GetArticle().GetId()))
+	if err != nil {
+		res.Result = "Fail"
+		log.Fatalf("Error while processing EditArticle: %v", err.Error())
+	}
+
+	return res, nil
 }

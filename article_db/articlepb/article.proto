@@ -51,6 +51,7 @@ message searchArticlesResponse {
   Article article = 1;
 }
 
+
 service ArticlesService {
   rpc GetArticles(getArticlesRequest) returns (stream getArticlesResponse) {};
   rpc GetArticle(getArticleRequest) returns (getArticleResponse) {};
