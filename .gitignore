@@ -4,6 +4,7 @@
 *.so
 
 # Folders
+postgres-data
 _obj
 _test
 
