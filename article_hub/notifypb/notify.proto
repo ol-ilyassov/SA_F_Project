@@ -2,20 +2,28 @@ syntax = "proto3";
 
 package notifypb;
 
-message Email {
+message ArticleCreationRequest {
   string address = 1;
   string title = 2;
   string time = 3;
 }
 
-message notifyRequest {
-  Email email = 1;
+message ArticleCreationResponse {
+  bool status = 1;
+  string result = 2;
 }
 
-message notifyResponse {
-  string result = 1;
+message UserCreationRequest {
+  string address = 1;
+  string time = 2;
+}
+
+message UserCreationResponse {
+  bool status = 1;
+  string result = 2;
 }
 
 service NotifierService {
-  rpc sendNotification(notifyRequest) returns (notifyResponse) {};
+  rpc ArticleCreationNotify(ArticleCreationRequest) returns (ArticleCreationResponse) {};
+  rpc UserCreationNotify(UserCreationRequest) returns (UserCreationResponse) {};
 }

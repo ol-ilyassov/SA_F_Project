@@ -30,18 +30,17 @@ func main() {
 	}
 }
 
-func (s *Server) SendNotification(ctx context.Context, req *notifypb.NotifyRequest) (*notifypb.NotifyResponse, error) {
-	log.Printf("SendNotification function was invoked with %v \n", req)
+func (s *Server) ArticleCreationNotify(ctx context.Context, req *notifypb.ArticleCreationRequest) (*notifypb.ArticleCreationResponse, error) {
+	log.Printf("ArticleCreationNotify function was invoked with %v \n", req)
 
 	from := os.Getenv("GMAIL_LOGIN")
 	pass := os.Getenv("GMAIL_PASSWORD")
 
-	recipient := req.GetEmail().GetAddress()
+	recipient := req.GetAddress()
 
-	body := " - Title: " + req.GetEmail().GetTitle() + "\n" +
-		" - When: " + req.GetEmail().GetTime() + "\n\n\n" +
+	body := " - Title: " + req.GetTitle() + "\n" +
+		" - When: " + req.GetTime() + "\n\n\n" +
 		" Enjoy reading!"
-
 	message := "From: " + from + "\n" +
 		"To: " + recipient + "\n" +
 		"Subject: New Article is Published!\n\n" + body
@@ -50,18 +49,51 @@ func (s *Server) SendNotification(ctx context.Context, req *notifypb.NotifyReque
 		recipient,
 	}
 	msg := []byte(message)
-
 	auth := smtp.PlainAuth("", from, pass, "smtp.gmail.com")
 	err := smtp.SendMail("smtp.gmail.com:587", auth, from, to, msg)
 
-	res := &notifypb.NotifyResponse{
+	res := &notifypb.ArticleCreationResponse{
 		Result: "Success",
 	}
-
 	if err != nil {
 		res.Result = "Fail"
 		log.Fatalf("Error while processing SendNotification: %v", err.Error())
 	}
+
+	return res, err
+}
+
+func (s *Server) UserCreationNotify(ctx context.Context, req *notifypb.UserCreationRequest) (*notifypb.UserCreationResponse, error) {
+	log.Printf("UserCreationNotify function was invoked with %v \n", req)
+
+	from := os.Getenv("GMAIL_LOGIN")
+	pass := os.Getenv("GMAIL_PASSWORD")
+
+	recipient := req.GetAddress()
+
+	body := " - New Account connected with " + recipient + " email have been created!\n" +
+		" - When: " + req.GetTime() + "\n\n\n" +
+		" Enjoy your Account on our Web Portal - Articles' Hub!"
+	message := "From: " + from + "\n" +
+		"To: " + recipient + "\n" +
+		"Subject: New Account is Created!\n\n" + body
+
+	to := []string{
+		recipient,
+	}
+	msg := []byte(message)
+	auth := smtp.PlainAuth("", from, pass, "smtp.gmail.com")
+	err := smtp.SendMail("smtp.gmail.com:587", auth, from, to, msg)
+
+	res := &notifypb.UserCreationResponse{
+		Result: "Success",
+	}
+	if err != nil {
+		res.Result = "Fail"
+		log.Fatalf("Error while processing SendNotification: %v", err.Error())
+	}
+
+	return res, err
 
 	return res, err
 }

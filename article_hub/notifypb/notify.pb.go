@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.25.0-devel
 // 	protoc        v3.14.0
-// source: notifypb/notify.proto
+// source: notifier/notifypb/notify.proto
 
 package notifypb
 
@@ -20,7 +20,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type Email struct {
+type ArticleCreationRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
@@ -30,23 +30,23 @@ type Email struct {
 	Time    string `protobuf:"bytes,3,opt,name=time,proto3" json:"time,omitempty"`
 }
 
-func (x *Email) Reset() {
-	*x = Email{}
+func (x *ArticleCreationRequest) Reset() {
+	*x = ArticleCreationRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_notifypb_notify_proto_msgTypes[0]
+		mi := &file_notifier_notifypb_notify_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
 }
 
-func (x *Email) String() string {
+func (x *ArticleCreationRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Email) ProtoMessage() {}
+func (*ArticleCreationRequest) ProtoMessage() {}
 
-func (x *Email) ProtoReflect() protoreflect.Message {
-	mi := &file_notifypb_notify_proto_msgTypes[0]
+func (x *ArticleCreationRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_notifier_notifypb_notify_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -57,57 +57,58 @@ func (x *Email) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Email.ProtoReflect.Descriptor instead.
-func (*Email) Descriptor() ([]byte, []int) {
-	return file_notifypb_notify_proto_rawDescGZIP(), []int{0}
+// Deprecated: Use ArticleCreationRequest.ProtoReflect.Descriptor instead.
+func (*ArticleCreationRequest) Descriptor() ([]byte, []int) {
+	return file_notifier_notifypb_notify_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *Email) GetAddress() string {
+func (x *ArticleCreationRequest) GetAddress() string {
 	if x != nil {
 		return x.Address
 	}
 	return ""
 }
 
-func (x *Email) GetTitle() string {
+func (x *ArticleCreationRequest) GetTitle() string {
 	if x != nil {
 		return x.Title
 	}
 	return ""
 }
 
-func (x *Email) GetTime() string {
+func (x *ArticleCreationRequest) GetTime() string {
 	if x != nil {
 		return x.Time
 	}
 	return ""
 }
 
-type NotifyRequest struct {
+type ArticleCreationResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Email *Email `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
+	Status bool   `protobuf:"varint,1,opt,name=status,proto3" json:"status,omitempty"`
+	Result string `protobuf:"bytes,2,opt,name=result,proto3" json:"result,omitempty"`
 }
 
-func (x *NotifyRequest) Reset() {
-	*x = NotifyRequest{}
+func (x *ArticleCreationResponse) Reset() {
+	*x = ArticleCreationResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_notifypb_notify_proto_msgTypes[1]
+		mi := &file_notifier_notifypb_notify_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
 }
 
-func (x *NotifyRequest) String() string {
+func (x *ArticleCreationResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*NotifyRequest) ProtoMessage() {}
+func (*ArticleCreationResponse) ProtoMessage() {}
 
-func (x *NotifyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_notifypb_notify_proto_msgTypes[1]
+func (x *ArticleCreationResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_notifier_notifypb_notify_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -118,127 +119,215 @@ func (x *NotifyRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use NotifyRequest.ProtoReflect.Descriptor instead.
-func (*NotifyRequest) Descriptor() ([]byte, []int) {
-	return file_notifypb_notify_proto_rawDescGZIP(), []int{1}
+// Deprecated: Use ArticleCreationResponse.ProtoReflect.Descriptor instead.
+func (*ArticleCreationResponse) Descriptor() ([]byte, []int) {
+	return file_notifier_notifypb_notify_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *NotifyRequest) GetEmail() *Email {
+func (x *ArticleCreationResponse) GetStatus() bool {
 	if x != nil {
-		return x.Email
+		return x.Status
 	}
-	return nil
+	return false
 }
 
-type NotifyResponse struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	Result string `protobuf:"bytes,1,opt,name=result,proto3" json:"result,omitempty"`
-}
-
-func (x *NotifyResponse) Reset() {
-	*x = NotifyResponse{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_notifypb_notify_proto_msgTypes[2]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *NotifyResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*NotifyResponse) ProtoMessage() {}
-
-func (x *NotifyResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_notifypb_notify_proto_msgTypes[2]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use NotifyResponse.ProtoReflect.Descriptor instead.
-func (*NotifyResponse) Descriptor() ([]byte, []int) {
-	return file_notifypb_notify_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *NotifyResponse) GetResult() string {
+func (x *ArticleCreationResponse) GetResult() string {
 	if x != nil {
 		return x.Result
 	}
 	return ""
 }
 
-var File_notifypb_notify_proto protoreflect.FileDescriptor
+type UserCreationRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
 
-var file_notifypb_notify_proto_rawDesc = []byte{
-	0x0a, 0x15, 0x6e, 0x6f, 0x74, 0x69, 0x66, 0x79, 0x70, 0x62, 0x2f, 0x6e, 0x6f, 0x74, 0x69, 0x66,
-	0x79, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x08, 0x6e, 0x6f, 0x74, 0x69, 0x66, 0x79, 0x70,
-	0x62, 0x22, 0x4b, 0x0a, 0x05, 0x45, 0x6d, 0x61, 0x69, 0x6c, 0x12, 0x18, 0x0a, 0x07, 0x61, 0x64,
+	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
+	Time    string `protobuf:"bytes,2,opt,name=time,proto3" json:"time,omitempty"`
+}
+
+func (x *UserCreationRequest) Reset() {
+	*x = UserCreationRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_notifier_notifypb_notify_proto_msgTypes[2]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *UserCreationRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserCreationRequest) ProtoMessage() {}
+
+func (x *UserCreationRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_notifier_notifypb_notify_proto_msgTypes[2]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserCreationRequest.ProtoReflect.Descriptor instead.
+func (*UserCreationRequest) Descriptor() ([]byte, []int) {
+	return file_notifier_notifypb_notify_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *UserCreationRequest) GetAddress() string {
+	if x != nil {
+		return x.Address
+	}
+	return ""
+}
+
+func (x *UserCreationRequest) GetTime() string {
+	if x != nil {
+		return x.Time
+	}
+	return ""
+}
+
+type UserCreationResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Status bool   `protobuf:"varint,1,opt,name=status,proto3" json:"status,omitempty"`
+	Result string `protobuf:"bytes,2,opt,name=result,proto3" json:"result,omitempty"`
+}
+
+func (x *UserCreationResponse) Reset() {
+	*x = UserCreationResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_notifier_notifypb_notify_proto_msgTypes[3]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *UserCreationResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserCreationResponse) ProtoMessage() {}
+
+func (x *UserCreationResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_notifier_notifypb_notify_proto_msgTypes[3]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserCreationResponse.ProtoReflect.Descriptor instead.
+func (*UserCreationResponse) Descriptor() ([]byte, []int) {
+	return file_notifier_notifypb_notify_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *UserCreationResponse) GetStatus() bool {
+	if x != nil {
+		return x.Status
+	}
+	return false
+}
+
+func (x *UserCreationResponse) GetResult() string {
+	if x != nil {
+		return x.Result
+	}
+	return ""
+}
+
+var File_notifier_notifypb_notify_proto protoreflect.FileDescriptor
+
+var file_notifier_notifypb_notify_proto_rawDesc = []byte{
+	0x0a, 0x1e, 0x6e, 0x6f, 0x74, 0x69, 0x66, 0x69, 0x65, 0x72, 0x2f, 0x6e, 0x6f, 0x74, 0x69, 0x66,
+	0x79, 0x70, 0x62, 0x2f, 0x6e, 0x6f, 0x74, 0x69, 0x66, 0x79, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f,
+	0x12, 0x08, 0x6e, 0x6f, 0x74, 0x69, 0x66, 0x79, 0x70, 0x62, 0x22, 0x5c, 0x0a, 0x16, 0x41, 0x72,
+	0x74, 0x69, 0x63, 0x6c, 0x65, 0x43, 0x72, 0x65, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71,
+	0x75, 0x65, 0x73, 0x74, 0x12, 0x18, 0x0a, 0x07, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x12, 0x14,
+	0x0a, 0x05, 0x74, 0x69, 0x74, 0x6c, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x74,
+	0x69, 0x74, 0x6c, 0x65, 0x12, 0x12, 0x0a, 0x04, 0x74, 0x69, 0x6d, 0x65, 0x18, 0x03, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x04, 0x74, 0x69, 0x6d, 0x65, 0x22, 0x49, 0x0a, 0x17, 0x41, 0x72, 0x74, 0x69,
+	0x63, 0x6c, 0x65, 0x43, 0x72, 0x65, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f,
+	0x6e, 0x73, 0x65, 0x12, 0x16, 0x0a, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x08, 0x52, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x12, 0x16, 0x0a, 0x06, 0x72,
+	0x65, 0x73, 0x75, 0x6c, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x72, 0x65, 0x73,
+	0x75, 0x6c, 0x74, 0x22, 0x43, 0x0a, 0x13, 0x55, 0x73, 0x65, 0x72, 0x43, 0x72, 0x65, 0x61, 0x74,
+	0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x18, 0x0a, 0x07, 0x61, 0x64,
 	0x64, 0x72, 0x65, 0x73, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x61, 0x64, 0x64,
-	0x72, 0x65, 0x73, 0x73, 0x12, 0x14, 0x0a, 0x05, 0x74, 0x69, 0x74, 0x6c, 0x65, 0x18, 0x02, 0x20,
-	0x01, 0x28, 0x09, 0x52, 0x05, 0x74, 0x69, 0x74, 0x6c, 0x65, 0x12, 0x12, 0x0a, 0x04, 0x74, 0x69,
-	0x6d, 0x65, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x74, 0x69, 0x6d, 0x65, 0x22, 0x36,
-	0x0a, 0x0d, 0x6e, 0x6f, 0x74, 0x69, 0x66, 0x79, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12,
-	0x25, 0x0a, 0x05, 0x65, 0x6d, 0x61, 0x69, 0x6c, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0f,
-	0x2e, 0x6e, 0x6f, 0x74, 0x69, 0x66, 0x79, 0x70, 0x62, 0x2e, 0x45, 0x6d, 0x61, 0x69, 0x6c, 0x52,
-	0x05, 0x65, 0x6d, 0x61, 0x69, 0x6c, 0x22, 0x28, 0x0a, 0x0e, 0x6e, 0x6f, 0x74, 0x69, 0x66, 0x79,
-	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x16, 0x0a, 0x06, 0x72, 0x65, 0x73, 0x75,
-	0x6c, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x72, 0x65, 0x73, 0x75, 0x6c, 0x74,
-	0x32, 0x5a, 0x0a, 0x0f, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x69, 0x65, 0x72, 0x53, 0x65, 0x72, 0x76,
-	0x69, 0x63, 0x65, 0x12, 0x47, 0x0a, 0x10, 0x73, 0x65, 0x6e, 0x64, 0x4e, 0x6f, 0x74, 0x69, 0x66,
-	0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x17, 0x2e, 0x6e, 0x6f, 0x74, 0x69, 0x66, 0x79,
-	0x70, 0x62, 0x2e, 0x6e, 0x6f, 0x74, 0x69, 0x66, 0x79, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
-	0x1a, 0x18, 0x2e, 0x6e, 0x6f, 0x74, 0x69, 0x66, 0x79, 0x70, 0x62, 0x2e, 0x6e, 0x6f, 0x74, 0x69,
-	0x66, 0x79, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x62, 0x06, 0x70, 0x72,
-	0x6f, 0x74, 0x6f, 0x33,
+	0x72, 0x65, 0x73, 0x73, 0x12, 0x12, 0x0a, 0x04, 0x74, 0x69, 0x6d, 0x65, 0x18, 0x02, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x04, 0x74, 0x69, 0x6d, 0x65, 0x22, 0x46, 0x0a, 0x14, 0x55, 0x73, 0x65, 0x72,
+	0x43, 0x72, 0x65, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
+	0x12, 0x16, 0x0a, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x08,
+	0x52, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x12, 0x16, 0x0a, 0x06, 0x72, 0x65, 0x73, 0x75,
+	0x6c, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x72, 0x65, 0x73, 0x75, 0x6c, 0x74,
+	0x32, 0xc8, 0x01, 0x0a, 0x0f, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x69, 0x65, 0x72, 0x53, 0x65, 0x72,
+	0x76, 0x69, 0x63, 0x65, 0x12, 0x5e, 0x0a, 0x15, 0x41, 0x72, 0x74, 0x69, 0x63, 0x6c, 0x65, 0x43,
+	0x72, 0x65, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x79, 0x12, 0x20, 0x2e,
+	0x6e, 0x6f, 0x74, 0x69, 0x66, 0x79, 0x70, 0x62, 0x2e, 0x41, 0x72, 0x74, 0x69, 0x63, 0x6c, 0x65,
+	0x43, 0x72, 0x65, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a,
+	0x21, 0x2e, 0x6e, 0x6f, 0x74, 0x69, 0x66, 0x79, 0x70, 0x62, 0x2e, 0x41, 0x72, 0x74, 0x69, 0x63,
+	0x6c, 0x65, 0x43, 0x72, 0x65, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
+	0x73, 0x65, 0x22, 0x00, 0x12, 0x55, 0x0a, 0x12, 0x55, 0x73, 0x65, 0x72, 0x43, 0x72, 0x65, 0x61,
+	0x74, 0x69, 0x6f, 0x6e, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x79, 0x12, 0x1d, 0x2e, 0x6e, 0x6f, 0x74,
+	0x69, 0x66, 0x79, 0x70, 0x62, 0x2e, 0x55, 0x73, 0x65, 0x72, 0x43, 0x72, 0x65, 0x61, 0x74, 0x69,
+	0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1e, 0x2e, 0x6e, 0x6f, 0x74, 0x69,
+	0x66, 0x79, 0x70, 0x62, 0x2e, 0x55, 0x73, 0x65, 0x72, 0x43, 0x72, 0x65, 0x61, 0x74, 0x69, 0x6f,
+	0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x62, 0x06, 0x70, 0x72, 0x6f,
+	0x74, 0x6f, 0x33,
 }
 
 var (
-	file_notifypb_notify_proto_rawDescOnce sync.Once
-	file_notifypb_notify_proto_rawDescData = file_notifypb_notify_proto_rawDesc
+	file_notifier_notifypb_notify_proto_rawDescOnce sync.Once
+	file_notifier_notifypb_notify_proto_rawDescData = file_notifier_notifypb_notify_proto_rawDesc
 )
 
-func file_notifypb_notify_proto_rawDescGZIP() []byte {
-	file_notifypb_notify_proto_rawDescOnce.Do(func() {
-		file_notifypb_notify_proto_rawDescData = protoimpl.X.CompressGZIP(file_notifypb_notify_proto_rawDescData)
+func file_notifier_notifypb_notify_proto_rawDescGZIP() []byte {
+	file_notifier_notifypb_notify_proto_rawDescOnce.Do(func() {
+		file_notifier_notifypb_notify_proto_rawDescData = protoimpl.X.CompressGZIP(file_notifier_notifypb_notify_proto_rawDescData)
 	})
-	return file_notifypb_notify_proto_rawDescData
+	return file_notifier_notifypb_notify_proto_rawDescData
 }
 
-var file_notifypb_notify_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
-var file_notifypb_notify_proto_goTypes = []interface{}{
-	(*Email)(nil),          // 0: notifypb.Email
-	(*NotifyRequest)(nil),  // 1: notifypb.notifyRequest
-	(*NotifyResponse)(nil), // 2: notifypb.notifyResponse
+var file_notifier_notifypb_notify_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_notifier_notifypb_notify_proto_goTypes = []interface{}{
+	(*ArticleCreationRequest)(nil),  // 0: notifypb.ArticleCreationRequest
+	(*ArticleCreationResponse)(nil), // 1: notifypb.ArticleCreationResponse
+	(*UserCreationRequest)(nil),     // 2: notifypb.UserCreationRequest
+	(*UserCreationResponse)(nil),    // 3: notifypb.UserCreationResponse
 }
-var file_notifypb_notify_proto_depIdxs = []int32{
-	0, // 0: notifypb.notifyRequest.email:type_name -> notifypb.Email
-	1, // 1: notifypb.NotifierService.sendNotification:input_type -> notifypb.notifyRequest
-	2, // 2: notifypb.NotifierService.sendNotification:output_type -> notifypb.notifyResponse
-	2, // [2:3] is the sub-list for method output_type
-	1, // [1:2] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+var file_notifier_notifypb_notify_proto_depIdxs = []int32{
+	0, // 0: notifypb.NotifierService.ArticleCreationNotify:input_type -> notifypb.ArticleCreationRequest
+	2, // 1: notifypb.NotifierService.UserCreationNotify:input_type -> notifypb.UserCreationRequest
+	1, // 2: notifypb.NotifierService.ArticleCreationNotify:output_type -> notifypb.ArticleCreationResponse
+	3, // 3: notifypb.NotifierService.UserCreationNotify:output_type -> notifypb.UserCreationResponse
+	2, // [2:4] is the sub-list for method output_type
+	0, // [0:2] is the sub-list for method input_type
+	0, // [0:0] is the sub-list for extension type_name
+	0, // [0:0] is the sub-list for extension extendee
+	0, // [0:0] is the sub-list for field type_name
 }
 
-func init() { file_notifypb_notify_proto_init() }
-func file_notifypb_notify_proto_init() {
-	if File_notifypb_notify_proto != nil {
+func init() { file_notifier_notifypb_notify_proto_init() }
+func file_notifier_notifypb_notify_proto_init() {
+	if File_notifier_notifypb_notify_proto != nil {
 		return
 	}
 	if !protoimpl.UnsafeEnabled {
-		file_notifypb_notify_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Email); i {
+		file_notifier_notifypb_notify_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ArticleCreationRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -249,8 +338,8 @@ func file_notifypb_notify_proto_init() {
 				return nil
 			}
 		}
-		file_notifypb_notify_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*NotifyRequest); i {
+		file_notifier_notifypb_notify_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ArticleCreationResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -261,8 +350,20 @@ func file_notifypb_notify_proto_init() {
 				return nil
 			}
 		}
-		file_notifypb_notify_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*NotifyResponse); i {
+		file_notifier_notifypb_notify_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*UserCreationRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_notifier_notifypb_notify_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*UserCreationResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -278,18 +379,18 @@ func file_notifypb_notify_proto_init() {
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: file_notifypb_notify_proto_rawDesc,
+			RawDescriptor: file_notifier_notifypb_notify_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_notifypb_notify_proto_goTypes,
-		DependencyIndexes: file_notifypb_notify_proto_depIdxs,
-		MessageInfos:      file_notifypb_notify_proto_msgTypes,
+		GoTypes:           file_notifier_notifypb_notify_proto_goTypes,
+		DependencyIndexes: file_notifier_notifypb_notify_proto_depIdxs,
+		MessageInfos:      file_notifier_notifypb_notify_proto_msgTypes,
 	}.Build()
-	File_notifypb_notify_proto = out.File
-	file_notifypb_notify_proto_rawDesc = nil
-	file_notifypb_notify_proto_goTypes = nil
-	file_notifypb_notify_proto_depIdxs = nil
+	File_notifier_notifypb_notify_proto = out.File
+	file_notifier_notifypb_notify_proto_rawDesc = nil
+	file_notifier_notifypb_notify_proto_goTypes = nil
+	file_notifier_notifypb_notify_proto_depIdxs = nil
 }

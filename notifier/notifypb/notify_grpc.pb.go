@@ -18,7 +18,8 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type NotifierServiceClient interface {
-	SendNotification(ctx context.Context, in *NotifyRequest, opts ...grpc.CallOption) (*NotifyResponse, error)
+	ArticleCreationNotify(ctx context.Context, in *ArticleCreationRequest, opts ...grpc.CallOption) (*ArticleCreationResponse, error)
+	UserCreationNotify(ctx context.Context, in *UserCreationRequest, opts ...grpc.CallOption) (*UserCreationResponse, error)
 }
 
 type notifierServiceClient struct {
@@ -29,9 +30,18 @@ func NewNotifierServiceClient(cc grpc.ClientConnInterface) NotifierServiceClient
 	return &notifierServiceClient{cc}
 }
 
-func (c *notifierServiceClient) SendNotification(ctx context.Context, in *NotifyRequest, opts ...grpc.CallOption) (*NotifyResponse, error) {
-	out := new(NotifyResponse)
-	err := c.cc.Invoke(ctx, "/notifypb.NotifierService/sendNotification", in, out, opts...)
+func (c *notifierServiceClient) ArticleCreationNotify(ctx context.Context, in *ArticleCreationRequest, opts ...grpc.CallOption) (*ArticleCreationResponse, error) {
+	out := new(ArticleCreationResponse)
+	err := c.cc.Invoke(ctx, "/notifypb.NotifierService/ArticleCreationNotify", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *notifierServiceClient) UserCreationNotify(ctx context.Context, in *UserCreationRequest, opts ...grpc.CallOption) (*UserCreationResponse, error) {
+	out := new(UserCreationResponse)
+	err := c.cc.Invoke(ctx, "/notifypb.NotifierService/UserCreationNotify", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +52,8 @@ func (c *notifierServiceClient) SendNotification(ctx context.Context, in *Notify
 // All implementations must embed UnimplementedNotifierServiceServer
 // for forward compatibility
 type NotifierServiceServer interface {
-	SendNotification(context.Context, *NotifyRequest) (*NotifyResponse, error)
+	ArticleCreationNotify(context.Context, *ArticleCreationRequest) (*ArticleCreationResponse, error)
+	UserCreationNotify(context.Context, *UserCreationRequest) (*UserCreationResponse, error)
 	mustEmbedUnimplementedNotifierServiceServer()
 }
 
@@ -50,8 +61,11 @@ type NotifierServiceServer interface {
 type UnimplementedNotifierServiceServer struct {
 }
 
-func (UnimplementedNotifierServiceServer) SendNotification(context.Context, *NotifyRequest) (*NotifyResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SendNotification not implemented")
+func (UnimplementedNotifierServiceServer) ArticleCreationNotify(context.Context, *ArticleCreationRequest) (*ArticleCreationResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ArticleCreationNotify not implemented")
+}
+func (UnimplementedNotifierServiceServer) UserCreationNotify(context.Context, *UserCreationRequest) (*UserCreationResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UserCreationNotify not implemented")
 }
 func (UnimplementedNotifierServiceServer) mustEmbedUnimplementedNotifierServiceServer() {}
 
@@ -66,20 +80,38 @@ func RegisterNotifierServiceServer(s grpc.ServiceRegistrar, srv NotifierServiceS
 	s.RegisterService(&NotifierService_ServiceDesc, srv)
 }
 
-func _NotifierService_SendNotification_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(NotifyRequest)
+func _NotifierService_ArticleCreationNotify_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ArticleCreationRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(NotifierServiceServer).SendNotification(ctx, in)
+		return srv.(NotifierServiceServer).ArticleCreationNotify(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/notifypb.NotifierService/sendNotification",
+		FullMethod: "/notifypb.NotifierService/ArticleCreationNotify",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NotifierServiceServer).SendNotification(ctx, req.(*NotifyRequest))
+		return srv.(NotifierServiceServer).ArticleCreationNotify(ctx, req.(*ArticleCreationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NotifierService_UserCreationNotify_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserCreationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NotifierServiceServer).UserCreationNotify(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/notifypb.NotifierService/UserCreationNotify",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NotifierServiceServer).UserCreationNotify(ctx, req.(*UserCreationRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -92,10 +124,14 @@ var NotifierService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*NotifierServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "sendNotification",
-			Handler:    _NotifierService_SendNotification_Handler,
+			MethodName: "ArticleCreationNotify",
+			Handler:    _NotifierService_ArticleCreationNotify_Handler,
+		},
+		{
+			MethodName: "UserCreationNotify",
+			Handler:    _NotifierService_UserCreationNotify_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "notifypb/notify.proto",
+	Metadata: "notifier/notifypb/notify.proto",
 }

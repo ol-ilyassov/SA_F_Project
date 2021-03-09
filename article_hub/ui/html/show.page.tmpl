@@ -1,30 +1,28 @@
 {{template "base" .}}
 {{define "title"}}Article #{{.Article.ID}}{{end}}
 {{define "main"}}
-    {{with .Article}}
         <div class='article'>
             <div class='metadata'>
-                <strong>Title: {{.Title}}</strong>
-                <span>#{{.ID}}</span>
+                <strong>Title: {{.Article.Title}}</strong>
+                <span>#{{.Article.ID}}</span>
             </div>
-    {{end}}
         <div class='metadata'>
             <strong>Author: {{.Article.AuthorName}}</strong>
             <span>
-                {{if .IsAuthenticated}}
-                    <a href="/article/edit/{{.Article.ID}}">Edit</a>
+                {{ if and .IsAuthenticated }}
+                    {{ if eq .UserID .Article.AuthorID }}
+                    <a href="/article/edit/{{.Article.ID}}">Edit</a><br>
                     <form action='/article/delete/{{.Article.ID}}' method='POST'>
                         <button>Delete</button>
                     </form>
-            {{end}}
+                    {{end}}
+                {{end}}
             </span>
         </div>
-    {{with .Article}}
-            <pre><code>{{.Content}}</code></pre>
+            <pre><code>{{.Article.Content}}</code></pre>
             <div class='metadata'>
-                <time>{{.Created | humanDate | printf "Created: %s"}}</time>
-                <time>{{.Expires | humanDate | printf "Expires: %s"}}</time>
+                <time>{{.Article.Created | humanDate | printf "Created: %s"}}</time>
+                <time>{{.Article.Expires | humanDate | printf "Expires: %s"}}</time>
             </div>
         </div>
-    {{end}}
 {{end}}

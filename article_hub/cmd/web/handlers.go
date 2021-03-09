@@ -107,6 +107,7 @@ func (app *application) showArticle(w http.ResponseWriter, r *http.Request) {
 	// Web Design
 	app.render(w, r, "show.page.tmpl", &templateData{
 		Article: article,
+		UserID:  app.session.GetInt(r, "authenticatedUserID"),
 	})
 }
 
@@ -143,6 +144,23 @@ func (app *application) createArticle(w http.ResponseWriter, r *http.Request) {
 	res, err := app.articles.InsertArticle(context.Background(), req)
 	if err != nil {
 		log.Fatalf("Error while calling InsertArticle RPC: %v", err)
+	} else {
+		reqUser := &authpb.GetUserRequest{
+			Id: int32(app.session.GetInt(r, "authenticatedUserID")),
+		}
+		resUser, err := app.auth.GetUser(context.Background(), reqUser)
+		if err != nil {
+			log.Fatalf("Error while calling GetUser RPC: %v", err)
+		}
+		reqNotify := &notifypb.ArticleCreationRequest{
+			Address: resUser.GetUser().GetEmail(),
+			Title:   form.Get("title"),
+			Time:    time.Now().Format("02 Jan 2006 at 15:04"),
+		}
+		_, err = app.notifier.ArticleCreationNotify(context.Background(), reqNotify)
+		if err != nil {
+			log.Fatalf("Error while calling ArticleCreationNotify RPC: %v", err)
+		}
 	}
 	log.Printf("Response from InsertArticle RPC: %v", res.GetResult())
 
@@ -166,23 +184,6 @@ func (app *application) deleteArticle(w http.ResponseWriter, r *http.Request) {
 		log.Fatalf("Error while calling DeleteArticle RPC: %v", err)
 	}
 	log.Printf("Response from DeleteArticle RPC: %v", res.GetResult())
-
-	http.Redirect(w, r, "/", http.StatusSeeOther)
-}
-
-func (app *application) sendMail(w http.ResponseWriter, r *http.Request) {
-	req := &notifypb.NotifyRequest{
-		Email: &notifypb.Email{
-			Address: "ol.ilyassov@gmail.com",
-			Title:   "Golang Microservices",
-			Time:    time.Now().Format("02 Jan 2006 at 15:04"),
-		},
-	}
-	res, err := app.notifier.SendNotification(context.Background(), req)
-	if err != nil {
-		log.Fatalf("Error while calling SendNotification RPC: %v", err)
-	}
-	log.Printf("Response from SendNotification RPC: %v", res.GetResult())
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
@@ -217,9 +218,7 @@ func (app *application) signupUser(w http.ResponseWriter, r *http.Request) {
 			Password: form.Get("password"),
 		},
 	}
-
 	res, _ := app.auth.CreateUser(context.Background(), req)
-
 	if !res.GetStatus() {
 		if res.GetResult() == models.ErrDuplicateEmail.Error() {
 			form.Errors.Add("email", "Address is already in use")
@@ -228,6 +227,15 @@ func (app *application) signupUser(w http.ResponseWriter, r *http.Request) {
 			app.serverError(w, errors.New(res.GetResult()))
 		}
 		return
+	}
+
+	reqNotify := &notifypb.UserCreationRequest{
+		Address: form.Get("email"),
+		Time:    time.Now().Format("02 Jan 2006 at 15:04"),
+	}
+	_, err = app.notifier.UserCreationNotify(context.Background(), reqNotify)
+	if err != nil {
+		log.Fatalf("Error while calling SendNotification RPC: %v", err)
 	}
 
 	app.session.Put(r, "flash", "Your signup was successful. Please log in.")
