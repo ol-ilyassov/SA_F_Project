@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/ol-ilyassov/final/article_hub/authpb"
 	"github.com/ol-ilyassov/final/article_hub/pkg/models"
 	"net/http"
 )
@@ -58,13 +59,18 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 			return
 		}
 
-		user, err := app.users.Get(app.session.GetInt(r, "authenticatedUserID"))
-		if errors.Is(err, models.ErrNoRecord) || !user.Active {
+		req := &authpb.GetUserRequest{
+			Id: int32(app.session.GetInt(r, "authenticatedUserID")),
+		}
+
+		res, _ := app.auth.GetUser(context.Background(), req)
+
+		if res.GetResult() == models.ErrNoRecord.Error() || !res.GetUser().GetActive() {
 			app.session.Remove(r, "authenticatedUserID")
 			next.ServeHTTP(w, r)
 			return
-		} else if err != nil {
-			app.serverError(w, err)
+		} else if !res.GetStatus() {
+			app.serverError(w, errors.New(res.GetResult()))
 			return
 		}
 

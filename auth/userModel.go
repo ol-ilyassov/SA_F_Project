@@ -59,16 +59,16 @@ func (m *UserModel) Authenticate(email, password string) (int, error) {
 	return id, nil
 }
 
-//func (m *UserModel) Get(id int) (*main.User, error) {
-//	u := &main.User{}
-//	stmt := `SELECT id, name, email, created, active FROM users WHERE id = $1`
-//	err := m.DB.QueryRow(context.Background(), stmt, id).Scan(&u.ID, &u.Name, &u.Email, &u.Created, &u.Active)
-//	if err != nil {
-//		if err.Error() == "no rows in result set" {
-//			return nil, ErrNoRecord
-//		} else {
-//			return nil, err
-//		}
-//	}
-//	return u, nil
-//}
+func (m *UserModel) Get(id int) (*User, error) {
+	u := &User{}
+	stmt := `SELECT id, name, email, created, active FROM users WHERE id = $1`
+	err := m.DB.QueryRow(context.Background(), stmt, id).Scan(&u.ID, &u.Name, &u.Email, &u.Created, &u.Active)
+	if err != nil {
+		if err.Error() == "no rows in result set" {
+			return nil, ErrNoRecord
+		} else {
+			return nil, err
+		}
+	}
+	return u, nil
+}

@@ -2,14 +2,11 @@
 package main
 
 import (
-	"context"
 	"flag"
-	"fmt"
 	"github.com/golangcollege/sessions"
-	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/ol-ilyassov/final/article_hub/articlepb"
+	"github.com/ol-ilyassov/final/article_hub/authpb"
 	"github.com/ol-ilyassov/final/article_hub/notifypb"
-	"github.com/ol-ilyassov/final/article_hub/pkg/models/postgres"
 	"google.golang.org/grpc"
 	"html/template"
 	"log"
@@ -28,8 +25,8 @@ type application struct {
 	session       *sessions.Session
 	articles      articlepb.ArticlesServiceClient
 	notifier      notifypb.NotifierServiceClient
+	auth          authpb.AuthServiceClient
 	templateCache map[string]*template.Template
-	users         *postgres.UserModel
 }
 
 func main() {
@@ -37,23 +34,18 @@ func main() {
 	secret := flag.String("secret", "s6Ndh+pPbnzHbS*+9Pk8qGWhTzbpa@ge", "Secret key")
 	flag.Parse()
 
+	// Loggers init
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
-	dns := flag.String("dns", "postgres://postgres:1@localhost:5432/snippetbox", "Postgre data source name")
-	db, err := openDB(*dns)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
-
-	port := "50051" // Port of Article_DB Microservice
-	conn, err := grpc.Dial("localhost:"+port, grpc.WithInsecure())
+	// Article_DB Microservice
+	port := "50051"
+	conn1, err := grpc.Dial("localhost:"+port, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("Could not connect: %v", err)
 	}
-	defer conn.Close()
-	articlesDBService := articlepb.NewArticlesServiceClient(conn)
+	defer conn1.Close()
+	articlesDBService := articlepb.NewArticlesServiceClient(conn1)
 
 	// Notifier Service
 	port2 := "50055"
@@ -61,14 +53,25 @@ func main() {
 	if err != nil {
 		log.Fatalf("Could not connect: %v", err)
 	}
-	defer conn.Close()
+	defer conn2.Close()
 	notifierService := notifypb.NewNotifierServiceClient(conn2)
 
+	// Auth Service
+	port3 := "50059"
+	conn3, err := grpc.Dial("localhost:"+port3, grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("Could not connect: %v", err)
+	}
+	defer conn3.Close()
+	authService := authpb.NewAuthServiceClient(conn3)
+
+	// Template Cache init
 	templateCache, err := newTemplateCache("ui/html/")
 	if err != nil {
 		errorLog.Fatal(err)
 	}
 
+	// Session init
 	session := sessions.New([]byte(*secret))
 	session.Lifetime = 12 * time.Hour
 
@@ -78,8 +81,8 @@ func main() {
 		session:       session,
 		articles:      articlesDBService,
 		notifier:      notifierService,
+		auth:          authService,
 		templateCache: templateCache,
-		users:         &postgres.UserModel{DB: db},
 	}
 
 	srv := &http.Server{
@@ -91,14 +94,4 @@ func main() {
 	infoLog.Printf("Starting a server on port%v", *addr)
 	err = srv.ListenAndServe()
 	errorLog.Fatal(err)
-}
-
-func openDB(dns string) (*pgxpool.Pool, error) {
-	conn, err := pgxpool.Connect(context.Background(), dns)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
-		os.Exit(1)
-		return nil, err
-	}
-	return conn, nil
 }

@@ -3,6 +3,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -18,9 +19,6 @@ type Server struct {
 }
 
 func main() {
-	//secret := flag.String("secret", "s6Ndh+pPbnzHbS*+9Pk8qGWhTzbpa@ge", "Secret key")
-	flag.Parse()
-
 	// Connection to DB
 	dns := flag.String("dns", "postgres://postgres:1@localhost:5432/snippetbox", "Postgre data source name")
 	db, err := openDB(*dns)
@@ -34,7 +32,7 @@ func main() {
 	}
 
 	// Server Creation
-	port := "50051" // Port of Article_DB Microservice
+	port := "50059" // Port of Article_DB Microservice
 	l, err := net.Listen("tcp", "0.0.0.0:"+port)
 	if err != nil {
 		log.Fatalf("Failed to listen: %v\n", err)
@@ -57,21 +55,78 @@ func openDB(dns string) (*pgxpool.Pool, error) {
 	return conn, nil
 }
 
-//func (s *Server) CreateUser(ctx context.Context, req *authpb.AuthUserRequest) (*authpb.AuthUserResponse, error) {
-//	log.Printf("GetArticle function was invoked with %v \n", req)
-//
-//	articleRes, err := m.Get(int(req.GetId()))
-//
-//	res := &articlepb.GetArticleResponse{
-//		Article: &articlepb.Article{
-//			Id:      int32(articleRes.ID),
-//			Title:   articleRes.Title,
-//			Content: articleRes.Content,
-//			Created: articleRes.Created.String(),
-//			Expires: articleRes.Expires.String(),
-//		},
-//		Result: "Success",
-//	}
-//
-//	return res, err
-//}
+func (s *Server) CreateUser(ctx context.Context, req *authpb.CreateUserRequest) (*authpb.CreateUserResponse, error) {
+	log.Printf("CreateUser function was invoked with %v \n", req.GetUser().GetEmail())
+
+	errSql := m.Insert(req.GetUser().GetName(), req.GetUser().GetEmail(), req.GetUser().GetPassword())
+
+	res := &authpb.CreateUserResponse{
+		Result: "Success",
+		Status: true,
+	}
+
+	if errSql != nil {
+		res.Status = false
+		if errors.Is(errSql, ErrDuplicateEmail) {
+			res.Result = ErrDuplicateEmail.Error()
+		} else {
+			res.Result = errSql.Error()
+		}
+	}
+
+	return res, nil
+}
+
+func (s *Server) AuthUser(ctx context.Context, req *authpb.AuthUserRequest) (*authpb.AuthUserResponse, error) {
+	log.Printf("AuthUser function was invoked with %s \n", req.GetUser().GetEmail())
+
+	id, errSql := m.Authenticate(req.GetUser().GetEmail(), req.GetUser().GetPassword())
+
+	res := &authpb.AuthUserResponse{
+		Result: "Success",
+		Status: true,
+	}
+
+	if errSql != nil {
+		res.Id = 0
+		res.Status = false
+		if errors.Is(errSql, ErrInvalidCredentials) {
+			res.Result = ErrInvalidCredentials.Error()
+		} else if errors.Is(errSql, ErrNoRecord) {
+			res.Result = ErrNoRecord.Error()
+		}
+	} else {
+		res.Id = int32(id)
+	}
+
+	log.Printf("Result: %s", res.GetResult())
+
+	return res, nil
+}
+
+func (s *Server) GetUser(ctx context.Context, req *authpb.GetUserRequest) (*authpb.GetUserResponse, error) {
+	log.Printf("GetUser function was invoked with id: %s \n", req.GetId())
+
+	resSql, errSql := m.Get(int(req.GetId()))
+
+	res := &authpb.GetUserResponse{
+		Result: "Success",
+		Status: true,
+		User:   &authpb.User{},
+	}
+
+	if errSql != nil {
+		res.Status = false
+		if errors.Is(errSql, ErrNoRecord) {
+			res.Result = ErrNoRecord.Error()
+		}
+	} else {
+		res.GetUser().Id = int32(resSql.ID)
+		res.GetUser().Name = resSql.Name
+		res.GetUser().Email = resSql.Email
+		res.GetUser().Created = resSql.Created.String()
+		res.GetUser().Active = resSql.Active
+	}
+
+	return res, nil
+}

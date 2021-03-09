@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/ol-ilyassov/final/article_hub/articlepb"
+	"github.com/ol-ilyassov/final/article_hub/authpb"
 	"github.com/ol-ilyassov/final/article_hub/notifypb"
 	"github.com/ol-ilyassov/final/article_hub/pkg/forms"
 	"github.com/ol-ilyassov/final/article_hub/pkg/models"
@@ -186,22 +187,29 @@ func (app *application) signupUser(w http.ResponseWriter, r *http.Request) {
 		app.render(w, r, "signup.page.tmpl", &templateData{Form: form})
 		return
 	}
-	// Try to create a new user record in the database. If the email already exists
-	// add an error message to the form and re-display it.
-	err = app.users.Insert(form.Get("name"), form.Get("email"), form.Get("password"))
-	if err != nil {
-		if errors.Is(err, models.ErrDuplicateEmail) {
+
+	req := &authpb.CreateUserRequest{
+		User: &authpb.User{
+			Name:     form.Get("name"),
+			Email:    form.Get("email"),
+			Password: form.Get("password"),
+		},
+	}
+
+	res, _ := app.auth.CreateUser(context.Background(), req)
+
+	if !res.GetStatus() {
+		if res.GetResult() == models.ErrDuplicateEmail.Error() {
 			form.Errors.Add("email", "Address is already in use")
 			app.render(w, r, "signup.page.tmpl", &templateData{Form: form})
 		} else {
-			app.serverError(w, err)
+			app.serverError(w, errors.New(res.GetResult()))
 		}
 		return
 	}
-	// Otherwise add a confirmation flash message to the session confirming that
-	// their signup worked and asking them to log in.
+
 	app.session.Put(r, "flash", "Your signup was successful. Please log in.")
-	// And redirect the user to the login page.
+
 	http.Redirect(w, r, "/user/login", http.StatusSeeOther)
 }
 
@@ -225,21 +233,30 @@ func (app *application) loginUser(w http.ResponseWriter, r *http.Request) {
 		app.render(w, r, "login.page.tmpl", &templateData{Form: form})
 		return
 	}
-	id, err := app.users.Authenticate(form.Get("email"), form.Get("password"))
-	if err != nil {
-		if err == models.ErrInvalidCredentials {
+
+	req := &authpb.AuthUserRequest{
+		User: &authpb.User{
+			Email:    form.Get("email"),
+			Password: form.Get("password"),
+		},
+	}
+
+	res, _ := app.auth.AuthUser(context.Background(), req)
+
+	if !res.GetStatus() {
+		if res.GetResult() == models.ErrInvalidCredentials.Error() {
 			form.Errors.Add("generic", "Email or Password is incorrect")
 			app.render(w, r, "login.page.tmpl", &templateData{Form: form})
-		} else if err == models.ErrNoRecord {
+		} else if res.GetResult() == models.ErrNoRecord.Error() {
 			form.Errors.Add("generic", "No user with given Email")
 			app.render(w, r, "login.page.tmpl", &templateData{Form: form})
 		} else {
-			app.serverError(w, err)
+			app.serverError(w, errors.New(res.GetResult()))
 		}
 		return
 	}
 
-	app.session.Put(r, "authenticatedUserID", id)
+	app.session.Put(r, "authenticatedUserID", int(res.GetId()))
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
