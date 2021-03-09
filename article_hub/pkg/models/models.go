@@ -12,11 +12,13 @@ var (
 )
 
 type Article struct {
-	ID      int
-	Title   string
-	Content string
-	Created time.Time
-	Expires time.Time
+	ID         int
+	AuthorID   int
+	AuthorName string
+	Title      string
+	Content    string
+	Created    time.Time
+	Expires    time.Time
 }
 
 type User struct {

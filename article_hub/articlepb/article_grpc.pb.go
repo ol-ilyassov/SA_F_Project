@@ -296,5 +296,5 @@ var ArticlesService_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "article_hub/articlepb/article.proto",
+	Metadata: "article_db/articlepb/article.proto",
 }

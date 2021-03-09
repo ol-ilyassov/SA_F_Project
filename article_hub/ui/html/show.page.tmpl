@@ -4,17 +4,20 @@
     {{with .Article}}
         <div class='article'>
             <div class='metadata'>
-                <strong>{{.Title}}</strong>
+                <strong>Title: {{.Title}}</strong>
                 <span>#{{.ID}}</span>
             </div>
     {{end}}
-            {{if .IsAuthenticated}}
-                <div class='metadata'>
+        <div class='metadata'>
+            <strong>Author: {{.Article.AuthorID}}</strong>
+            <span>
+                {{if .IsAuthenticated}}
                     <form action='/article/delete/{{.Article.ID}}' method='POST'>
                         <button>Delete</button>
                     </form>
-                </div>
             {{end}}
+            </span>
+        </div>
     {{with .Article}}
             <pre><code>{{.Content}}</code></pre>
             <div class='metadata'>

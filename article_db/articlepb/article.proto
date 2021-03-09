@@ -4,10 +4,11 @@ package articlepb;
 
 message Article {
   int32 id = 1;
-  string title = 2;
-  string content = 3;
-  string created = 4;
-  string expires = 5;
+  int32 authorid = 2;
+  string title = 3;
+  string content = 4;
+  string created = 5;
+  string expires = 6;
 }
 
 message getArticlesRequest { }

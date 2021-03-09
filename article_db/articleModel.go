@@ -15,16 +15,16 @@ type ArticleModel struct {
 	DB *pgxpool.Pool
 }
 
-func (m *ArticleModel) Insert(title, content, expires string) (int, error) {
+func (m *ArticleModel) Insert(title, content, expires string, authorid int) (int, error) {
 
-	stmt := "INSERT INTO snippets (title, content, created, expires) VALUES ($1, $2, $3, $4) RETURNING id"
+	stmt := "INSERT INTO snippets (title, content, created, expires, authorid) VALUES ($1, $2, $3, $4, $5) RETURNING id"
 
 	var id uint64
 	days, err := strconv.Atoi(expires)
 	if err != nil {
 		return 0, err
 	}
-	row := m.DB.QueryRow(context.Background(), stmt, title, content, time.Now(), time.Now().AddDate(0, 0, days))
+	row := m.DB.QueryRow(context.Background(), stmt, title, content, time.Now(), time.Now().AddDate(0, 0, days), authorid)
 	err = row.Scan(&id)
 	if err != nil {
 		return 0, err
@@ -34,12 +34,12 @@ func (m *ArticleModel) Insert(title, content, expires string) (int, error) {
 
 func (m *ArticleModel) Get(id int) (*Article, error) {
 
-	stmt := "SELECT id, title, content, created, expires FROM snippets WHERE expires > $1 AND id = $2"
+	stmt := "SELECT id, title, content, created, expires, authorid FROM snippets WHERE expires > $1 AND id = $2"
 
 	row := m.DB.QueryRow(context.Background(), stmt, time.Now(), id)
 	s := &Article{}
 
-	err := row.Scan(&s.ID, &s.Title, &s.Content, &s.Created, &s.Expires)
+	err := row.Scan(&s.ID, &s.Title, &s.Content, &s.Created, &s.Expires, &s.AuthorID)
 	if err != nil {
 		if err.Error() == "no rows in result set" {
 			return nil, ErrNoRecord
@@ -52,7 +52,7 @@ func (m *ArticleModel) Get(id int) (*Article, error) {
 
 func (m *ArticleModel) Latest() ([]*Article, error) {
 
-	stmt := "SELECT id, title, content, created, expires FROM snippets WHERE expires > $1 ORDER BY created DESC"
+	stmt := "SELECT id, title, content, created, expires, authorid FROM snippets WHERE expires > $1 ORDER BY created DESC"
 
 	rows, err := m.DB.Query(context.Background(), stmt, time.Now())
 	if err != nil {
@@ -64,7 +64,7 @@ func (m *ArticleModel) Latest() ([]*Article, error) {
 
 	for rows.Next() {
 		s := &Article{}
-		err = rows.Scan(&s.ID, &s.Title, &s.Content, &s.Created, &s.Expires)
+		err = rows.Scan(&s.ID, &s.Title, &s.Content, &s.Created, &s.Expires, &s.AuthorID)
 		if err != nil {
 			return nil, err
 		}
@@ -95,7 +95,7 @@ func (m *ArticleModel) Delete(id int) error {
 
 func (m *ArticleModel) Search(title string) ([]*Article, error) {
 
-	stmt := "SELECT id, title, content, created, expires FROM snippets WHERE expires > $1 AND LOWER(title) LIKE '%' || $2 || '%'"
+	stmt := "SELECT id, title, content, created, expires, authorid FROM snippets WHERE expires > $1 AND LOWER(title) LIKE '%' || $2 || '%'"
 
 	rows, err := m.DB.Query(context.Background(), stmt, time.Now(), title)
 	if err != nil {
@@ -107,7 +107,7 @@ func (m *ArticleModel) Search(title string) ([]*Article, error) {
 
 	for rows.Next() {
 		s := &Article{}
-		err = rows.Scan(&s.ID, &s.Title, &s.Content, &s.Created, &s.Expires)
+		err = rows.Scan(&s.ID, &s.Title, &s.Content, &s.Created, &s.Expires, &s.AuthorID)
 		if err != nil {
 			return nil, err
 		}

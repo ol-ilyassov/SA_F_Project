@@ -60,11 +60,12 @@ func (s *Server) GetArticle(ctx context.Context, req *articlepb.GetArticleReques
 
 	res := &articlepb.GetArticleResponse{
 		Article: &articlepb.Article{
-			Id:      int32(articleRes.ID),
-			Title:   articleRes.Title,
-			Content: articleRes.Content,
-			Created: articleRes.Created.String(),
-			Expires: articleRes.Expires.String(),
+			Id:       int32(articleRes.ID),
+			Authorid: int32(articleRes.AuthorID),
+			Title:    articleRes.Title,
+			Content:  articleRes.Content,
+			Created:  articleRes.Created.String(),
+			Expires:  articleRes.Expires.String(),
 		},
 		Result: "Success",
 	}
@@ -83,11 +84,12 @@ func (s *Server) GetArticles(req *articlepb.GetArticlesRequest, stream articlepb
 	for _, articleRes := range arr {
 		res := &articlepb.GetArticlesResponse{
 			Article: &articlepb.Article{
-				Id:      int32(articleRes.ID),
-				Title:   articleRes.Title,
-				Content: articleRes.Content,
-				Created: articleRes.Created.String(),
-				Expires: articleRes.Expires.String(),
+				Id:       int32(articleRes.ID),
+				Authorid: int32(articleRes.AuthorID),
+				Title:    articleRes.Title,
+				Content:  articleRes.Content,
+				Created:  articleRes.Created.String(),
+				Expires:  articleRes.Expires.String(),
 			},
 		}
 
@@ -102,11 +104,16 @@ func (s *Server) GetArticles(req *articlepb.GetArticlesRequest, stream articlepb
 func (s *Server) InsertArticle(ctx context.Context, req *articlepb.InsertArticleRequest) (*articlepb.InsertArticleResponse, error) {
 	log.Printf("InsertArticle function was invoked with %v \n", req)
 
-	id, _ := m.Insert(req.GetArticle().GetTitle(), req.GetArticle().GetContent(), req.GetArticle().GetExpires())
+	id, err := m.Insert(req.GetArticle().GetTitle(), req.GetArticle().GetContent(), req.GetArticle().GetExpires(), int(req.GetArticle().GetAuthorid()))
 
 	res := &articlepb.InsertArticleResponse{
 		Id:     int32(id),
 		Result: "Success",
+	}
+
+	if err != nil {
+		res.Result = "Fail"
+		log.Fatalf("Error while processing InsertArticle: %v", err.Error())
 	}
 
 	return res, nil
@@ -139,11 +146,12 @@ func (s *Server) SearchArticles(req *articlepb.SearchArticlesRequest, stream art
 	for _, articleRes := range arr {
 		res := &articlepb.SearchArticlesResponse{
 			Article: &articlepb.Article{
-				Id:      int32(articleRes.ID),
-				Title:   articleRes.Title,
-				Content: articleRes.Content,
-				Created: articleRes.Created.String(),
-				Expires: articleRes.Expires.String(),
+				Id:       int32(articleRes.ID),
+				Authorid: int32(articleRes.AuthorID),
+				Title:    articleRes.Title,
+				Content:  articleRes.Content,
+				Created:  articleRes.Created.String(),
+				Expires:  articleRes.Expires.String(),
 			},
 		}
 		if err := stream.Send(res); err != nil {
