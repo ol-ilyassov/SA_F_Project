@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  article_hub:
+    restart: always
+    build: ./article_hub
+    command: /app/article_hub/cmd/web/main
+    ports:
+      - 4000:4000
+    depends_on:
+      - article_db
+      - auth
+      - notifier
+
+  article_db:
+    restart: always
+    build: ./article_db
+    ports:
+      - 60051:60051
+    depends_on:
+      - db
+
+  auth:
+    restart: always
+    build: ./auth
+    ports:
+      - 60059:60059
+    depends_on:
+      - db
+
+  notifier:
+    restart: always
+    build: ./notifier
+    ports:
+      - 60055:60055
+      - 587:587
+
+  db:
+    restart: always
+    image: postgres:latest
+    env_file:
+      - database.env
+    ports:
+      - 5432:5432
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+      - ./sql/:/docker-entrypoint-initdb.d/
+
+volumes:
+  postgres-data:

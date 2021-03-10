@@ -7,14 +7,8 @@ CREATE TABLE articles(
   expires timestamp not null
 );
 
-ALTER TABLE articles ADD CONSTRAINT fk_authorid 
-FOREIGN KEY (authorid) REFERENCES users (id);
-
-CREATE INDEX idx_articles_created ON snippets(created);
-
 CREATE TABLE users (
   id SERIAL NOT NULL UNIQUE,
-  authorid INT NOT NULL,
   name VARCHAR(255) NOT NULL,
   email VARCHAR(255) NOT NULL,
   hashed_password CHAR(60) NOT NULL,
@@ -23,3 +17,8 @@ CREATE TABLE users (
 );
 
 ALTER TABLE users ADD CONSTRAINT users_uc_email UNIQUE (email);
+
+ALTER TABLE articles ADD CONSTRAINT fk_authorid 
+FOREIGN KEY (authorid) REFERENCES users (id);
+
+CREATE INDEX idx_articles_created ON articles(created);

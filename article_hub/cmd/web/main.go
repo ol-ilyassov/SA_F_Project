@@ -40,7 +40,7 @@ func main() {
 
 	// Article_DB Microservice
 	port := "60051"
-	conn1, err := grpc.Dial("localhost:"+port, grpc.WithInsecure())
+	conn1, err := grpc.Dial("article_db:"+port, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("Could not connect: %v", err)
 	}
@@ -49,7 +49,7 @@ func main() {
 
 	// Notifier Service
 	port2 := "60055"
-	conn2, err := grpc.Dial("localhost:"+port2, grpc.WithInsecure())
+	conn2, err := grpc.Dial("notifier:"+port2, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("Could not connect: %v", err)
 	}
@@ -58,7 +58,7 @@ func main() {
 
 	// Auth Service
 	port3 := "60059"
-	conn3, err := grpc.Dial("localhost:"+port3, grpc.WithInsecure())
+	conn3, err := grpc.Dial("auth:"+port3, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("Could not connect: %v", err)
 	}
@@ -66,7 +66,7 @@ func main() {
 	authService := authpb.NewAuthServiceClient(conn3)
 
 	// Template Cache init
-	templateCache, err := newTemplateCache("ui/html/")
+	templateCache, err := newTemplateCache("app/article_hub/ui/html/")
 	if err != nil {
 		errorLog.Fatal(err)
 	}

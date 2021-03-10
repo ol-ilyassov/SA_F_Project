@@ -2,13 +2,11 @@ package main
 
 import (
 	"context"
-	"github.com/joho/godotenv"
 	"github.com/ol-ilyassov/final/notifier/notifypb"
 	"google.golang.org/grpc"
 	"log"
 	"net"
 	"net/smtp"
-	"os"
 )
 
 type Server struct {
@@ -16,7 +14,7 @@ type Server struct {
 }
 
 func main() {
-	_ = godotenv.Load("globals.env")
+	//_ = godotenv.Load("globals.env")
 	port := "60055"
 	l, err := net.Listen("tcp", "0.0.0.0:"+port)
 	if err != nil {
@@ -33,8 +31,11 @@ func main() {
 func (s *Server) ArticleCreationNotify(ctx context.Context, req *notifypb.ArticleCreationRequest) (*notifypb.ArticleCreationResponse, error) {
 	log.Printf("ArticleCreationNotify function was invoked with %v \n", req)
 
-	from := os.Getenv("GMAIL_LOGIN")
-	pass := os.Getenv("GMAIL_PASSWORD")
+	//GMAIL_LOGIN=bot.notifier.01@gmail.com
+	//GMAIL_PASSWORD=3x3ravno8
+
+	from := "bot.notifier.01@gmail.com"
+	pass := "3x3ravno8"
 
 	recipient := req.GetAddress()
 
@@ -66,8 +67,11 @@ func (s *Server) ArticleCreationNotify(ctx context.Context, req *notifypb.Articl
 func (s *Server) UserCreationNotify(ctx context.Context, req *notifypb.UserCreationRequest) (*notifypb.UserCreationResponse, error) {
 	log.Printf("UserCreationNotify function was invoked with %v \n", req)
 
-	from := os.Getenv("GMAIL_LOGIN")
-	pass := os.Getenv("GMAIL_PASSWORD")
+	//from := os.Getenv("GMAIL_LOGIN")
+	//pass := os.Getenv("GMAIL_PASSWORD")
+
+	from := "bot.notifier.01@gmail.com"
+	pass := "3x3ravno8"
 
 	recipient := req.GetAddress()
 
@@ -92,8 +96,6 @@ func (s *Server) UserCreationNotify(ctx context.Context, req *notifypb.UserCreat
 		res.Result = "Fail"
 		log.Fatalf("Error while processing SendNotification: %v", err.Error())
 	}
-
-	return res, err
 
 	return res, err
 }
